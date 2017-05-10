@@ -12,8 +12,10 @@ import Subheader from 'material-ui/Subheader';
 import Chip from 'material-ui/Chip';
 //import {blue300, indigo900} from 'material-ui/styles/colors';
 import {Card, CardActions, CardHeader, CardText} from 'material-ui/Card';
+import {Tabs, Tab} from 'material-ui/Tabs';
 
 import {sha3_256} from 'js-sha3';
+
 
 const TestimonyABI = [
   {
@@ -118,10 +120,14 @@ export class App extends React.Component {
     this.file = false;
   }
 
+
+
   render() {
 
     return (
       <div>
+      <Tabs>
+        <Tab label="Register/Update" >
         <Card>
           <CardHeader title="Enter your Testimony Hash" subtitle={<TransactionProgressBadge value={this.state.tx}/>} actAsExpander={false} showExpandableButton={false}/>
           <CardActions>
@@ -133,12 +139,11 @@ export class App extends React.Component {
                 : "Drop file here"
 }
             </div>
-            <RaisedButton primary={true} label="Register as new testimonial" onClick={() => this.setState({
+            <RaisedButton primary={true} label="Register new Testimony" onClick={() => this.setState({
               tx: this.contract.create(this.file.hash)
             })} fullWidth={true}/>
           </CardActions>
         </Card>
-
         <Rspan>
           {this.contract.isValid(this.hash).map(v => v.toString())}
         </Rspan>
@@ -172,6 +177,28 @@ export class App extends React.Component {
             </List>
           </div>
         </Rspan>
+        </Tab>
+        <Tab label="Validate" >
+        <Card>
+          <CardHeader title="Enter your Testimony" actAsExpander={false} showExpandableButton={false}/>
+          <CardActions>
+            <div id="drop_zone" onDragOver={this.handleDragOver.bind(this)} onDrop={this.handleFileSelect.bind(this)}>
+              {this.file
+                ? <span>{this.file.name}, {this.file.type}
+                    - {this.file.size}
+                    Bytes</span>
+                : "Drop file here"
+}
+            </div>
+            <RaisedButton primary={true} label="Validate" onClick={() => this.setState({
+              tx: this.contract.create(this.file.hash)
+            })} fullWidth={true}/>
+          </CardActions>
+        </Card>
+        
+        </Tab>
+        </Tabs>
+
       </div>
     );
   }
