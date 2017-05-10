@@ -34242,17 +34242,19 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _dappStyles = __webpack_require__(342);
+	var _style = __webpack_require__(342);
 
-	var _dappStyles2 = _interopRequireDefault(_dappStyles);
+	var _style2 = _interopRequireDefault(_style);
 
 	var _oo = __webpack_require__(337);
 
-	var _oo7React = __webpack_require__(357);
+	var _oo7React = __webpack_require__(346);
 
 	var _oo7Parity = __webpack_require__(338);
 
-	var _parityReactiveUi = __webpack_require__(400);
+	var _parityReactiveUi = __webpack_require__(389);
+
+	var _jsSha = __webpack_require__(394);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -34261,8 +34263,6 @@
 	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-	//import styles from "../style.css";
-
 
 	var TestimonyABI = [{
 	  "constant": true,
@@ -34353,6 +34353,7 @@
 	    _this.state = {
 	      tx: null
 	    };
+	    _this.file = false;
 	    return _this;
 	  }
 
@@ -34364,6 +34365,26 @@
 	      return _react2.default.createElement(
 	        'div',
 	        null,
+	        _react2.default.createElement(
+	          'div',
+	          {
+	            id: 'drop_zone',
+	            onDragOver: this.handleDragOver.bind(this),
+	            onDrop: this.handleFileSelect.bind(this) },
+	          this.file ? _react2.default.createElement(
+	            'span',
+	            null,
+	            this.file.name,
+	            ', ',
+	            this.file.type,
+	            ' - ',
+	            this.file.size,
+	            ' Bytes'
+	          ) : "Drop file here"
+	        ),
+	        _react2.default.createElement(_oo7React.RRaisedButton, { label: 'Log what\'s stored in this.file', onClick: function onClick() {
+	            return console.log(_this2.file);
+	          } }),
 	        _react2.default.createElement(_oo7React.HashBond, { bond: this.hash, floatingLabelText: 'Hash' }),
 	        _react2.default.createElement(_oo7React.RRaisedButton, { label: 'Register as new testimonial', onClick: function onClick() {
 	            return _this2.setState({
@@ -34422,6 +34443,54 @@
 	        )
 	      );
 	    }
+	  }, {
+	    key: 'handleFileSelect',
+	    value: function handleFileSelect(evt) {
+	      var that = this;
+	      evt.stopPropagation();
+	      evt.preventDefault();
+
+	      var files = evt.dataTransfer.files; // FileList object.
+
+	      // files is a FileList of File objects. List some properties.
+	      var output;
+	      for (var i = 0, f; f = files[i]; i++) {
+	        output = {
+	          name: f.name,
+	          type: f.type || "n/a",
+	          size: f.size
+	        };
+	        this.file = output;
+
+	        var reader = new FileReader();
+
+	        reader.onloadend = function (evt) {
+	          if (evt.target.readyState == FileReader.DONE) {
+	            // DONE == 2
+	            var hash = (0, _jsSha.sha3_256)(evt.target.result);
+	            that.file.hash = "0x" + hash;
+	            console.log(that.file.name + " hash: " + that.file.hash);
+
+	            // TODO: Substitute the following workaround with something react-like
+	            // document.getElementById('hash_field').value = "0x" + that.file.hash.toString();
+	            // that.hash = new Bond("0x" + that.file.hash);
+	            document.getElementById('drop_zone').innerHTML = "<span style={color:#FFF;font-size:100%}>" + that.file.name + ", " + that.file.type + " - " + that.file.size + " Bytes: " + that.file.hash + "</span>";
+	          }
+	        };
+
+	        reader.readAsBinaryString(f);
+
+	        break;
+	      }
+	      console.log(output);
+	    }
+	  }, {
+	    key: 'handleDragOver',
+	    value: function handleDragOver(evt) {
+	      evt.stopPropagation();
+	      evt.preventDefault();
+	      evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
+	    }
 	  }]);
 
 	  return App;
@@ -34437,14 +34506,14 @@
 	var content = __webpack_require__(343);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(356)(content, {});
+	var update = __webpack_require__(345)(content, {});
 	if(content.locals) module.exports = content.locals;
 	// Hot Module Replacement
 	if(false) {
 		// When the styles change, update the <style> tags
 		if(!content.locals) {
-			module.hot.accept("!!../../../node_modules/css-loader/index.js!./dapp-styles.css", function() {
-				var newContent = require("!!../../../node_modules/css-loader/index.js!./dapp-styles.css");
+			module.hot.accept("!!../../node_modules/css-loader/index.js!./style.css", function() {
+				var newContent = require("!!../../node_modules/css-loader/index.js!./style.css");
 				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 				update(newContent);
 			});
@@ -34462,7 +34531,7 @@
 
 
 	// module
-	exports.push([module.id, "@font-face {\n  font-family: 'Simple-Line-Icons';\n  src: url(" + __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"./icons/Simple-Line-Icons.eot\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())) + ");\n  src: url(" + __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"./icons/Simple-Line-Icons.eot\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())) + "?#iefix) format('embedded-opentype'), url(" + __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"./icons/Simple-Line-Icons.woff\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())) + ") format('woff'), url(" + __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"./icons/Simple-Line-Icons.ttf\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())) + ") format('truetype'), url(" + __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"./icons/Simple-Line-Icons.svg\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())) + "#Simple-Line-Icons) format('svg');\n  font-weight: normal;\n  font-style: normal;\n}\n/* Use the following CSS code if you want to use data attributes for inserting your icons */\n[data-icon]:before {\n  font-family: 'Simple-Line-Icons';\n  content: attr(data-icon);\n  speak: none;\n  font-weight: normal;\n  font-variant: normal;\n  text-transform: none;\n  line-height: 1;\n  -webkit-font-smoothing: antialiased;\n  -moz-osx-font-smoothing: grayscale;\n}\n/* Use the following CSS code if you want to have a class per icon */\n/*\nInstead of a list of all class selectors,\nyou can use the generic selector below, but it's slower:\n[class*=\"icon-\"] {\n*/\n.icon-user-female,\n.icon-user-follow,\n.icon-user-following,\n.icon-user-unfollow,\n.icon-trophy,\n.icon-screen-smartphone,\n.icon-screen-desktop,\n.icon-plane,\n.icon-notebook,\n.icon-moustache,\n.icon-mouse,\n.icon-magnet,\n.icon-energy,\n.icon-emoticon-smile,\n.icon-disc,\n.icon-cursor-move,\n.icon-crop,\n.icon-credit-card,\n.icon-chemistry,\n.icon-user,\n.icon-speedometer,\n.icon-social-youtube,\n.icon-social-twitter,\n.icon-social-tumblr,\n.icon-social-facebook,\n.icon-social-dropbox,\n.icon-social-dribbble,\n.icon-shield,\n.icon-screen-tablet,\n.icon-magic-wand,\n.icon-hourglass,\n.icon-graduation,\n.icon-ghost,\n.icon-game-controller,\n.icon-fire,\n.icon-eyeglasses,\n.icon-envelope-open,\n.icon-envelope-letter,\n.icon-bell,\n.icon-badge,\n.icon-anchor,\n.icon-wallet,\n.icon-vector,\n.icon-speech,\n.icon-puzzle,\n.icon-printer,\n.icon-present,\n.icon-playlist,\n.icon-pin,\n.icon-picture,\n.icon-map,\n.icon-layers,\n.icon-handbag,\n.icon-globe-alt,\n.icon-globe,\n.icon-frame,\n.icon-folder-alt,\n.icon-film,\n.icon-feed,\n.icon-earphones-alt,\n.icon-earphones,\n.icon-drop,\n.icon-drawer,\n.icon-docs,\n.icon-directions,\n.icon-direction,\n.icon-diamond,\n.icon-cup,\n.icon-compass,\n.icon-call-out,\n.icon-call-in,\n.icon-call-end,\n.icon-calculator,\n.icon-bubbles,\n.icon-briefcase,\n.icon-book-open,\n.icon-basket-loaded,\n.icon-basket,\n.icon-bag,\n.icon-action-undo,\n.icon-action-redo,\n.icon-wrench,\n.icon-umbrella,\n.icon-trash,\n.icon-tag,\n.icon-support,\n.icon-size-fullscreen,\n.icon-size-actual,\n.icon-shuffle,\n.icon-share-alt,\n.icon-share,\n.icon-rocket,\n.icon-question,\n.icon-pie-chart,\n.icon-pencil,\n.icon-note,\n.icon-music-tone-alt,\n.icon-music-tone,\n.icon-microphone,\n.icon-loop,\n.icon-logout,\n.icon-login,\n.icon-list,\n.icon-like,\n.icon-home,\n.icon-grid,\n.icon-graph,\n.icon-equalizer,\n.icon-dislike,\n.icon-cursor,\n.icon-control-start,\n.icon-control-rewind,\n.icon-control-play,\n.icon-control-pause,\n.icon-control-forward,\n.icon-control-end,\n.icon-calendar,\n.icon-bulb,\n.icon-bar-chart,\n.icon-arrow-up,\n.icon-arrow-right,\n.icon-arrow-left,\n.icon-arrow-down,\n.icon-ban,\n.icon-bubble,\n.icon-camcorder,\n.icon-camera,\n.icon-check,\n.icon-clock,\n.icon-close,\n.icon-cloud-download,\n.icon-cloud-upload,\n.icon-doc,\n.icon-envelope,\n.icon-eye,\n.icon-flag,\n.icon-folder,\n.icon-heart,\n.icon-info,\n.icon-key,\n.icon-link,\n.icon-lock,\n.icon-lock-open,\n.icon-magnifier,\n.icon-magnifier-add,\n.icon-magnifier-remove,\n.icon-paper-clip,\n.icon-paper-plane,\n.icon-plus,\n.icon-pointer,\n.icon-power,\n.icon-refresh,\n.icon-reload,\n.icon-settings,\n.icon-star,\n.icon-symbol-female,\n.icon-symbol-male,\n.icon-target,\n.icon-volume-1,\n.icon-volume-2,\n.icon-volume-off,\n.icon-users {\n  font-family: 'Simple-Line-Icons';\n  speak: none;\n  font-style: normal;\n  font-weight: normal;\n  font-variant: normal;\n  text-transform: none;\n  line-height: 1;\n  -webkit-font-smoothing: antialiased;\n}\n.icon-user-female:before {\n  content: \"\\E000\";\n}\n.icon-user-follow:before {\n  content: \"\\E002\";\n}\n.icon-user-following:before {\n  content: \"\\E003\";\n}\n.icon-user-unfollow:before {\n  content: \"\\E004\";\n}\n.icon-trophy:before {\n  content: \"\\E006\";\n}\n.icon-screen-smartphone:before {\n  content: \"\\E010\";\n}\n.icon-screen-desktop:before {\n  content: \"\\E011\";\n}\n.icon-plane:before {\n  content: \"\\E012\";\n}\n.icon-notebook:before {\n  content: \"\\E013\";\n}\n.icon-moustache:before {\n  content: \"\\E014\";\n}\n.icon-mouse:before {\n  content: \"\\E015\";\n}\n.icon-magnet:before {\n  content: \"\\E016\";\n}\n.icon-energy:before {\n  content: \"\\E020\";\n}\n.icon-emoticon-smile:before {\n  content: \"\\E021\";\n}\n.icon-disc:before {\n  content: \"\\E022\";\n}\n.icon-cursor-move:before {\n  content: \"\\E023\";\n}\n.icon-crop:before {\n  content: \"\\E024\";\n}\n.icon-credit-card:before {\n  content: \"\\E025\";\n}\n.icon-chemistry:before {\n  content: \"\\E026\";\n}\n.icon-user:before {\n  content: \"\\E005\";\n}\n.icon-speedometer:before {\n  content: \"\\E007\";\n}\n.icon-social-youtube:before {\n  content: \"\\E008\";\n}\n.icon-social-twitter:before {\n  content: \"\\E009\";\n}\n.icon-social-tumblr:before {\n  content: \"\\E00A\";\n}\n.icon-social-facebook:before {\n  content: \"\\E00B\";\n}\n.icon-social-dropbox:before {\n  content: \"\\E00C\";\n}\n.icon-social-dribbble:before {\n  content: \"\\E00D\";\n}\n.icon-shield:before {\n  content: \"\\E00E\";\n}\n.icon-screen-tablet:before {\n  content: \"\\E00F\";\n}\n.icon-magic-wand:before {\n  content: \"\\E017\";\n}\n.icon-hourglass:before {\n  content: \"\\E018\";\n}\n.icon-graduation:before {\n  content: \"\\E019\";\n}\n.icon-ghost:before {\n  content: \"\\E01A\";\n}\n.icon-game-controller:before {\n  content: \"\\E01B\";\n}\n.icon-fire:before {\n  content: \"\\E01C\";\n}\n.icon-eyeglasses:before {\n  content: \"\\E01D\";\n}\n.icon-envelope-open:before {\n  content: \"\\E01E\";\n}\n.icon-envelope-letter:before {\n  content: \"\\E01F\";\n}\n.icon-bell:before {\n  content: \"\\E027\";\n}\n.icon-badge:before {\n  content: \"\\E028\";\n}\n.icon-anchor:before {\n  content: \"\\E029\";\n}\n.icon-wallet:before {\n  content: \"\\E02A\";\n}\n.icon-vector:before {\n  content: \"\\E02B\";\n}\n.icon-speech:before {\n  content: \"\\E02C\";\n}\n.icon-puzzle:before {\n  content: \"\\E02D\";\n}\n.icon-printer:before {\n  content: \"\\E02E\";\n}\n.icon-present:before {\n  content: \"\\E02F\";\n}\n.icon-playlist:before {\n  content: \"\\E030\";\n}\n.icon-pin:before {\n  content: \"\\E031\";\n}\n.icon-picture:before {\n  content: \"\\E032\";\n}\n.icon-map:before {\n  content: \"\\E033\";\n}\n.icon-layers:before {\n  content: \"\\E034\";\n}\n.icon-handbag:before {\n  content: \"\\E035\";\n}\n.icon-globe-alt:before {\n  content: \"\\E036\";\n}\n.icon-globe:before {\n  content: \"\\E037\";\n}\n.icon-frame:before {\n  content: \"\\E038\";\n}\n.icon-folder-alt:before {\n  content: \"\\E039\";\n}\n.icon-film:before {\n  content: \"\\E03A\";\n}\n.icon-feed:before {\n  content: \"\\E03B\";\n}\n.icon-earphones-alt:before {\n  content: \"\\E03C\";\n}\n.icon-earphones:before {\n  content: \"\\E03D\";\n}\n.icon-drop:before {\n  content: \"\\E03E\";\n}\n.icon-drawer:before {\n  content: \"\\E03F\";\n}\n.icon-docs:before {\n  content: \"\\E040\";\n}\n.icon-directions:before {\n  content: \"\\E041\";\n}\n.icon-direction:before {\n  content: \"\\E042\";\n}\n.icon-diamond:before {\n  content: \"\\E043\";\n}\n.icon-cup:before {\n  content: \"\\E044\";\n}\n.icon-compass:before {\n  content: \"\\E045\";\n}\n.icon-call-out:before {\n  content: \"\\E046\";\n}\n.icon-call-in:before {\n  content: \"\\E047\";\n}\n.icon-call-end:before {\n  content: \"\\E048\";\n}\n.icon-calculator:before {\n  content: \"\\E049\";\n}\n.icon-bubbles:before {\n  content: \"\\E04A\";\n}\n.icon-briefcase:before {\n  content: \"\\E04B\";\n}\n.icon-book-open:before {\n  content: \"\\E04C\";\n}\n.icon-basket-loaded:before {\n  content: \"\\E04D\";\n}\n.icon-basket:before {\n  content: \"\\E04E\";\n}\n.icon-bag:before {\n  content: \"\\E04F\";\n}\n.icon-action-undo:before {\n  content: \"\\E050\";\n}\n.icon-action-redo:before {\n  content: \"\\E051\";\n}\n.icon-wrench:before {\n  content: \"\\E052\";\n}\n.icon-umbrella:before {\n  content: \"\\E053\";\n}\n.icon-trash:before {\n  content: \"\\E054\";\n}\n.icon-tag:before {\n  content: \"\\E055\";\n}\n.icon-support:before {\n  content: \"\\E056\";\n}\n.icon-size-fullscreen:before {\n  content: \"\\E057\";\n}\n.icon-size-actual:before {\n  content: \"\\E058\";\n}\n.icon-shuffle:before {\n  content: \"\\E059\";\n}\n.icon-share-alt:before {\n  content: \"\\E05A\";\n}\n.icon-share:before {\n  content: \"\\E05B\";\n}\n.icon-rocket:before {\n  content: \"\\E05C\";\n}\n.icon-question:before {\n  content: \"\\E05D\";\n}\n.icon-pie-chart:before {\n  content: \"\\E05E\";\n}\n.icon-pencil:before {\n  content: \"\\E05F\";\n}\n.icon-note:before {\n  content: \"\\E060\";\n}\n.icon-music-tone-alt:before {\n  content: \"\\E061\";\n}\n.icon-music-tone:before {\n  content: \"\\E062\";\n}\n.icon-microphone:before {\n  content: \"\\E063\";\n}\n.icon-loop:before {\n  content: \"\\E064\";\n}\n.icon-logout:before {\n  content: \"\\E065\";\n}\n.icon-login:before {\n  content: \"\\E066\";\n}\n.icon-list:before {\n  content: \"\\E067\";\n}\n.icon-like:before {\n  content: \"\\E068\";\n}\n.icon-home:before {\n  content: \"\\E069\";\n}\n.icon-grid:before {\n  content: \"\\E06A\";\n}\n.icon-graph:before {\n  content: \"\\E06B\";\n}\n.icon-equalizer:before {\n  content: \"\\E06C\";\n}\n.icon-dislike:before {\n  content: \"\\E06D\";\n}\n.icon-cursor:before {\n  content: \"\\E06E\";\n}\n.icon-control-start:before {\n  content: \"\\E06F\";\n}\n.icon-control-rewind:before {\n  content: \"\\E070\";\n}\n.icon-control-play:before {\n  content: \"\\E071\";\n}\n.icon-control-pause:before {\n  content: \"\\E072\";\n}\n.icon-control-forward:before {\n  content: \"\\E073\";\n}\n.icon-control-end:before {\n  content: \"\\E074\";\n}\n.icon-calendar:before {\n  content: \"\\E075\";\n}\n.icon-bulb:before {\n  content: \"\\E076\";\n}\n.icon-bar-chart:before {\n  content: \"\\E077\";\n}\n.icon-arrow-up:before {\n  content: \"\\E078\";\n}\n.icon-arrow-right:before {\n  content: \"\\E079\";\n}\n.icon-arrow-left:before {\n  content: \"\\E07A\";\n}\n.icon-arrow-down:before {\n  content: \"\\E07B\";\n}\n.icon-ban:before {\n  content: \"\\E07C\";\n}\n.icon-bubble:before {\n  content: \"\\E07D\";\n}\n.icon-camcorder:before {\n  content: \"\\E07E\";\n}\n.icon-camera:before {\n  content: \"\\E07F\";\n}\n.icon-check:before {\n  content: \"\\E080\";\n}\n.icon-clock:before {\n  content: \"\\E081\";\n}\n.icon-close:before {\n  content: \"\\E082\";\n}\n.icon-cloud-download:before {\n  content: \"\\E083\";\n}\n.icon-cloud-upload:before {\n  content: \"\\E084\";\n}\n.icon-doc:before {\n  content: \"\\E085\";\n}\n.icon-envelope:before {\n  content: \"\\E086\";\n}\n.icon-eye:before {\n  content: \"\\E087\";\n}\n.icon-flag:before {\n  content: \"\\E088\";\n}\n.icon-folder:before {\n  content: \"\\E089\";\n}\n.icon-heart:before {\n  content: \"\\E08A\";\n}\n.icon-info:before {\n  content: \"\\E08B\";\n}\n.icon-key:before {\n  content: \"\\E08C\";\n}\n.icon-link:before {\n  content: \"\\E08D\";\n}\n.icon-lock:before {\n  content: \"\\E08E\";\n}\n.icon-lock-open:before {\n  content: \"\\E08F\";\n}\n.icon-magnifier:before {\n  content: \"\\E090\";\n}\n.icon-magnifier-add:before {\n  content: \"\\E091\";\n}\n.icon-magnifier-remove:before {\n  content: \"\\E092\";\n}\n.icon-paper-clip:before {\n  content: \"\\E093\";\n}\n.icon-paper-plane:before {\n  content: \"\\E094\";\n}\n.icon-plus:before {\n  content: \"\\E095\";\n}\n.icon-pointer:before {\n  content: \"\\E096\";\n}\n.icon-power:before {\n  content: \"\\E097\";\n}\n.icon-refresh:before {\n  content: \"\\E098\";\n}\n.icon-reload:before {\n  content: \"\\E099\";\n}\n.icon-settings:before {\n  content: \"\\E09A\";\n}\n.icon-star:before {\n  content: \"\\E09B\";\n}\n.icon-symbol-female:before {\n  content: \"\\E09C\";\n}\n.icon-symbol-male:before {\n  content: \"\\E09D\";\n}\n.icon-target:before {\n  content: \"\\E09E\";\n}\n.icon-volume-1:before {\n  content: \"\\E09F\";\n}\n.icon-volume-2:before {\n  content: \"\\E0A0\";\n}\n.icon-volume-off:before {\n  content: \"\\E0A1\";\n}\n.icon-users:before {\n  content: \"\\E001\";\n}\n/*! normalize.css v1.1.2 | MIT License | git.io/normalize */\n/* ==========================================================================\n   HTML5 display definitions\n   ========================================================================== */\n/**\n * Correct `block` display not defined in IE 6/7/8/9 and Firefox 3.\n */\narticle,\naside,\ndetails,\nfigcaption,\nfigure,\nfooter,\nheader,\nhgroup,\nmain,\nnav,\nsection,\nsummary {\n  display: block;\n}\n/**\n * Correct `inline-block` display not defined in IE 6/7/8/9 and Firefox 3.\n */\naudio,\ncanvas,\nvideo {\n  display: inline-block;\n  *display: inline;\n  *zoom: 1;\n}\n/**\n * Prevent modern browsers from displaying `audio` without controls.\n * Remove excess height in iOS 5 devices.\n */\naudio:not([controls]) {\n  display: none;\n  height: 0;\n}\n/**\n * Address styling not present in IE 7/8/9, Firefox 3, and Safari 4.\n * Known issue: no IE 6 support.\n */\n[hidden] {\n  display: none;\n}\n/* ==========================================================================\n   Base\n   ========================================================================== */\n/**\n * 1. Correct text resizing oddly in IE 6/7 when body `font-size` is set using\n *    `em` units.\n * 2. Prevent iOS text size adjust after orientation change, without disabling\n *    user zoom.\n */\nhtml {\n  font-size: 100%;\n  /* 1 */\n  -ms-text-size-adjust: 100%;\n  /* 2 */\n  -webkit-text-size-adjust: 100%;\n  /* 2 */\n}\n/**\n * Address `font-family` inconsistency between `textarea` and other form\n * elements.\n */\nhtml,\nbutton,\ninput,\nselect,\ntextarea {\n  font-family: sans-serif;\n}\n/**\n * Address margins handled incorrectly in IE 6/7.\n */\nbody {\n  margin: 0;\n}\n/* ==========================================================================\n   Links\n   ========================================================================== */\n/**\n * Address `outline` inconsistency between Chrome and other browsers.\n */\na:focus {\n  outline: thin dotted;\n}\n/**\n * Improve readability when focused and also mouse hovered in all browsers.\n */\na:active,\na:hover {\n  outline: 0;\n}\n/* ==========================================================================\n   Typography\n   ========================================================================== */\n/**\n * Address font sizes and margins set differently in IE 6/7.\n * Address font sizes within `section` and `article` in Firefox 4+, Safari 5,\n * and Chrome.\n */\nh1 {\n  font-size: 2em;\n  margin: 0.67em 0;\n}\nh2 {\n  font-size: 1.5em;\n  margin: 0.83em 0;\n}\nh3 {\n  font-size: 1.17em;\n  margin: 1em 0;\n}\nh4 {\n  font-size: 1em;\n  margin: 1.33em 0;\n}\nh5 {\n  font-size: 0.83em;\n  margin: 1.67em 0;\n}\nh6 {\n  font-size: 0.67em;\n  margin: 2.33em 0;\n}\n/**\n * Address styling not present in IE 7/8/9, Safari 5, and Chrome.\n */\nabbr[title] {\n  border-bottom: 1px dotted;\n}\n/**\n * Address style set to `bolder` in Firefox 3+, Safari 4/5, and Chrome.\n */\nb,\nstrong {\n  font-weight: bold;\n}\nblockquote {\n  margin: 1em 40px;\n}\n/**\n * Address styling not present in Safari 5 and Chrome.\n */\ndfn {\n  font-style: italic;\n}\n/**\n * Address differences between Firefox and other browsers.\n * Known issue: no IE 6/7 normalization.\n */\nhr {\n  -moz-box-sizing: content-box;\n  box-sizing: content-box;\n  height: 0;\n}\n/**\n * Address styling not present in IE 6/7/8/9.\n */\nmark {\n  background: #ff0;\n  color: #000;\n}\n/**\n * Address margins set differently in IE 6/7.\n */\np,\npre {\n  margin: 1em 0;\n}\n/**\n * Correct font family set oddly in IE 6, Safari 4/5, and Chrome.\n */\ncode,\nkbd,\npre,\nsamp {\n  font-family: monospace, serif;\n  _font-family: 'courier new', monospace;\n  font-size: 1em;\n}\n/**\n * Improve readability of pre-formatted text in all browsers.\n */\npre {\n  white-space: pre;\n  white-space: pre-wrap;\n  word-wrap: break-word;\n}\n/**\n * Address CSS quotes not supported in IE 6/7.\n */\nq {\n  quotes: none;\n}\n/**\n * Address `quotes` property not supported in Safari 4.\n */\nq:before,\nq:after {\n  content: '';\n  content: none;\n}\n/**\n * Address inconsistent and variable font size in all browsers.\n */\nsmall {\n  font-size: 80%;\n}\n/**\n * Prevent `sub` and `sup` affecting `line-height` in all browsers.\n */\nsub,\nsup {\n  font-size: 75%;\n  line-height: 0;\n  position: relative;\n  vertical-align: baseline;\n}\nsup {\n  top: -0.5em;\n}\nsub {\n  bottom: -0.25em;\n}\n/* ==========================================================================\n   Lists\n   ========================================================================== */\n/**\n * Address margins set differently in IE 6/7.\n */\ndl,\nmenu,\nol,\nul {\n  margin: 1em 0;\n}\ndd {\n  margin: 0 0 0 40px;\n}\n/**\n * Address paddings set differently in IE 6/7.\n */\nmenu,\nol,\nul {\n  padding: 0 0 0 40px;\n}\n/**\n * Correct list images handled incorrectly in IE 7.\n */\nnav ul,\nnav ol {\n  list-style: none;\n  list-style-image: none;\n}\n/* ==========================================================================\n   Embedded content\n   ========================================================================== */\n/**\n * 1. Remove border when inside `a` element in IE 6/7/8/9 and Firefox 3.\n * 2. Improve image quality when scaled in IE 7.\n */\nimg {\n  border: 0;\n  /* 1 */\n  -ms-interpolation-mode: bicubic;\n  /* 2 */\n}\n/**\n * Correct overflow displayed oddly in IE 9.\n */\nsvg:not(:root) {\n  overflow: hidden;\n}\n/* ==========================================================================\n   Figures\n   ========================================================================== */\n/**\n * Address margin not present in IE 6/7/8/9, Safari 5, and Opera 11.\n */\nfigure {\n  margin: 0;\n}\n/* ==========================================================================\n   Forms\n   ========================================================================== */\n/**\n * Correct margin displayed oddly in IE 6/7.\n */\nform {\n  margin: 0;\n}\n/**\n * Define consistent border, margin, and padding.\n */\nfieldset {\n  border: 1px solid #c0c0c0;\n  margin: 0 2px;\n  padding: 0.35em 0.625em 0.75em;\n}\n/**\n * 1. Correct color not being inherited in IE 6/7/8/9.\n * 2. Correct text not wrapping in Firefox 3.\n * 3. Correct alignment displayed oddly in IE 6/7.\n */\nlegend {\n  border: 0;\n  /* 1 */\n  padding: 0;\n  white-space: normal;\n  /* 2 */\n  *margin-left: -7px;\n  /* 3 */\n}\n/**\n * 1. Correct font size not being inherited in all browsers.\n * 2. Address margins set differently in IE 6/7, Firefox 3+, Safari 5,\n *    and Chrome.\n * 3. Improve appearance and consistency in all browsers.\n */\nbutton,\ninput,\nselect,\ntextarea {\n  font-size: 100%;\n  /* 1 */\n  margin: 0;\n  /* 2 */\n  vertical-align: baseline;\n  /* 3 */\n  *vertical-align: middle;\n  /* 3 */\n}\n/**\n * Address Firefox 3+ setting `line-height` on `input` using `!important` in\n * the UA stylesheet.\n */\nbutton,\ninput {\n  line-height: normal;\n}\n/**\n * Address inconsistent `text-transform` inheritance for `button` and `select`.\n * All other form control elements do not inherit `text-transform` values.\n * Correct `button` style inheritance in Chrome, Safari 5+, and IE 6+.\n * Correct `select` style inheritance in Firefox 4+ and Opera.\n */\nbutton,\nselect {\n  text-transform: none;\n}\n/**\n * 1. Avoid the WebKit bug in Android 4.0.* where (2) destroys native `audio`\n *    and `video` controls.\n * 2. Correct inability to style clickable `input` types in iOS.\n * 3. Improve usability and consistency of cursor style between image-type\n *    `input` and others.\n * 4. Remove inner spacing in IE 7 without affecting normal text inputs.\n *    Known issue: inner spacing remains in IE 6.\n */\nbutton,\nhtml input[type=\"button\"],\ninput[type=\"reset\"],\ninput[type=\"submit\"] {\n  -webkit-appearance: button;\n  /* 2 */\n  cursor: pointer;\n  /* 3 */\n  *overflow: visible;\n  /* 4 */\n}\n/**\n * Re-set default cursor for disabled elements.\n */\nbutton[disabled],\nhtml input[disabled] {\n  cursor: default;\n}\n/**\n * 1. Address box sizing set to content-box in IE 8/9.\n * 2. Remove excess padding in IE 8/9.\n * 3. Remove excess padding in IE 7.\n *    Known issue: excess padding remains in IE 6.\n */\ninput[type=\"checkbox\"],\ninput[type=\"radio\"] {\n  box-sizing: border-box;\n  /* 1 */\n  padding: 0;\n  /* 2 */\n  *height: 13px;\n  /* 3 */\n  *width: 13px;\n  /* 3 */\n}\n/**\n * 1. Address `appearance` set to `searchfield` in Safari 5 and Chrome.\n * 2. Address `box-sizing` set to `border-box` in Safari 5 and Chrome\n *    (include `-moz` to future-proof).\n */\ninput[type=\"search\"] {\n  -webkit-appearance: textfield;\n  /* 1 */\n  -moz-box-sizing: content-box;\n  -webkit-box-sizing: content-box;\n  /* 2 */\n  box-sizing: content-box;\n}\n/**\n * Remove inner padding and search cancel button in Safari 5 and Chrome\n * on OS X.\n */\ninput[type=\"search\"]::-webkit-search-cancel-button,\ninput[type=\"search\"]::-webkit-search-decoration {\n  -webkit-appearance: none;\n}\n/**\n * Remove inner padding and border in Firefox 3+.\n */\nbutton::-moz-focus-inner,\ninput::-moz-focus-inner {\n  border: 0;\n  padding: 0;\n}\n/**\n * 1. Remove default vertical scrollbar in IE 6/7/8/9.\n * 2. Improve readability and alignment in all browsers.\n */\ntextarea {\n  overflow: auto;\n  /* 1 */\n  vertical-align: top;\n  /* 2 */\n}\n/* ==========================================================================\n   Tables\n   ========================================================================== */\n/**\n * Remove most spacing between table cells.\n */\ntable {\n  border-collapse: collapse;\n  border-spacing: 0;\n}\n*,\n*:before,\n*:after {\n  -webkit-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  box-sizing: border-box;\n}\narticle,\naside,\ndetails,\nfigcaption,\nfigure,\nfooter,\nheader,\nhgroup,\nmain,\nnav,\nsection,\nsummary {\n  display: block;\n}\nhtml,\nbutton,\ninput,\nselect,\ntextarea {\n  font-family: sans-serif;\n}\nbody,\nform,\nfieldset,\nlegend,\ninput,\nselect,\ntextarea,\nbutton {\n  margin: 0;\n}\nhtml {\n  font-size: 100%;\n}\n.section {\n  position: relative;\n}\n.container {\n  max-width: 960px;\n  margin-left: auto;\n  margin-right: auto;\n  padding-left: 10px;\n  padding-right: 10px;\n}\n.container-full {\n  max-width: 960px;\n  margin-left: auto;\n  margin-right: auto;\n}\n.col {\n  float: left;\n  padding-left: 10px;\n  padding-right: 10px;\n}\n[class*=\"pull-\"],\n[class*=\"push-\"] {\n  position: relative;\n}\n.no-gutter {\n  padding-left: 0;\n  padding-right: 0;\n}\n.col-1 {\n  width: 8.33333%;\n  width: calc(100% / 12 * 1);\n  width: -webkit-calc(100% / 12 * 1);\n  width: -moz-calc(100% / 12 * 1);\n}\n.col-2 {\n  width: 16.66667%;\n  width: calc(100% / 12 * 2);\n  width: -webkit-calc(100% / 12 * 2);\n  width: -moz-calc(100% / 12 * 2);\n}\n.col-3,\n.col-1-4 {\n  width: 25%;\n  width: calc(100% / 12 * 3);\n  width: -webkit-calc(100% / 12 * 3);\n  width: -moz-calc(100% / 12 * 3);\n}\n.col-4,\n.col-1-3 {\n  width: 33.33333%;\n  width: calc(100% / 12 * 4);\n  width: -webkit-calc(100% / 12 * 4);\n  width: -moz-calc(100% / 12 * 4);\n}\n.col-5 {\n  width: 41.66665%;\n  width: calc(100% / 12 * 5);\n  width: -webkit-calc(100% / 12 * 5);\n  width: -moz-calc(100% / 12 * 5);\n}\n.col-6,\n.col-1-2 {\n  width: 50%;\n  width: calc(100% / 12 * 6);\n  width: -webkit-calc(100% / 12 * 6);\n  width: -moz-calc(100% / 12 * 6);\n}\n.col-7 {\n  width: 58.33333%;\n  width: calc(100% / 12 * 7);\n  width: -webkit-calc(100% / 12 * 7);\n  width: -moz-calc(100% / 12 * 7);\n}\n.col-8 {\n  width: 66.66666%;\n  width: calc(100% / 12 * 8);\n  width: -webkit-calc(100% / 12 * 8);\n  width: -moz-calc(100% / 12 * 8);\n}\n.col-9,\n.col-3-4 {\n  width: 75%;\n  width: calc(100% / 12 * 9);\n  width: -webkit-calc(100% / 12 * 9);\n  width: -moz-calc(100% / 12 * 9);\n}\n.col-10 {\n  width: 83.33333%;\n  width: calc(100% / 12 * 10);\n  width: -webkit-calc(100% / 12 * 10);\n  width: -moz-calc(100% / 12 * 10);\n}\n.col-11 {\n  width: 91.66666%;\n  width: calc(100% / 12 * 11);\n  width: -webkit-calc(100% / 12 * 11);\n  width: -moz-calc(100% / 12 * 11);\n}\n.col-12 {\n  width: 100%;\n}\n.push-1 {\n  left: 8.33333%;\n  left: calc(100% / 12 * 1);\n  left: -webkit-calc(100% / 12 * 1);\n  left: -moz-calc(100% / 12 * 1);\n}\n.pull-1 {\n  left: -8.33333%;\n  left: calc(-100% / 12 * 1);\n  left: -webkit-calc(-100% / 12 * 1);\n  left: -moz-calc(-100% / 12 * 1);\n}\n.push-2 {\n  left: 16.66667%;\n  left: calc(100% / 12 * 2);\n  left: -webkit-calc(100% / 12 * 2);\n  left: -moz-calc(100% / 12 * 2);\n}\n.pull-2 {\n  left: -16.66667%;\n  left: calc(-100% / 12 * 2);\n  left: -webkit-calc(-100% / 12 * 2);\n  left: -moz-calc(-100% / 12 * 2);\n}\n.push-3,\n.push-1-4 {\n  left: 25%;\n  left: calc(100% / 12 * 3);\n  left: -webkit-calc(100% / 12 * 3);\n  left: -moz-calc(100% / 12 * 3);\n}\n.pull-3,\n.pull-1-4 {\n  left: -25%;\n  left: calc(-100% / 12 * 3);\n  left: -webkit-calc(-100% / 12 * 3);\n  left: -moz-calc(-100% / 12 * 3);\n}\n.push-4,\n.push-1-3 {\n  left: 33.33333%;\n  left: calc(100% / 12 * 4);\n  left: -webkit-calc(100% / 12 * 4);\n  left: -moz-calc(100% / 12 * 4);\n}\n.pull-4,\n.pull-1-3 {\n  left: -33.33333%;\n  left: calc(-100% / 12 * 4);\n  left: -webkit-calc(-100% / 12 * 4);\n  left: -moz-calc(-100% / 12 * 4);\n}\n.push-5 {\n  left: 41.66665%;\n  left: calc(100% / 12 * 5);\n  left: -webkit-calc(100% / 12 * 5);\n  left: -moz-calc(100% / 12 * 5);\n}\n.pull-5 {\n  left: -41.66665%;\n  left: calc(-100% / 12 * 5);\n  left: -webkit-calc(-100% / 12 * 5);\n  left: -moz-calc(-100% / 12 * 5);\n}\n.push-6,\n.push-1-2 {\n  left: 50%;\n  left: calc(100% / 12 * 6);\n  left: -webkit-calc(100% / 12 * 6);\n  left: -moz-calc(100% / 12 * 6);\n}\n.pull-6,\n.pull-1-2 {\n  left: -50%;\n  left: calc(-100% / 12 * 6);\n  left: -webkit-calc(-100% / 12 * 6);\n  left: -moz-calc(-100% / 12 * 6);\n}\n.push-7 {\n  left: 58.33333%;\n  left: calc(100% / 12 * 7);\n  left: -webkit-calc(100% / 12 * 7);\n  left: -moz-calc(100% / 12 * 7);\n}\n.pull-7 {\n  left: -58.33333%;\n  left: calc(-100% / 12 * 7);\n  left: -webkit-calc(-100% / 12 * 7);\n  left: -moz-calc(-100% / 12 * 7);\n}\n.push-8 {\n  left: 66.66666%;\n  left: calc(100% / 12 * 8);\n  left: -webkit-calc(100% / 12 * 8);\n  left: -moz-calc(100% / 12 * 8);\n}\n.pull-8 {\n  left: -66.66666%;\n  left: calc(-100% / 12 * 8);\n  left: -webkit-calc(-100% / 12 * 8);\n  left: -moz-calc(-100% / 12 * 8);\n}\n.push-9,\n.push-3-4 {\n  left: 75%;\n  left: calc(100% / 12 * 9);\n  left: -webkit-calc(100% / 12 * 9);\n  left: -moz-calc(100% / 12 * 9);\n}\n.pull-9,\n.pull-3-4 {\n  left: -75%;\n  left: calc(-100% / 12 * 9);\n  left: -webkit-calc(-100% / 12 * 9);\n  left: -moz-calc(-100% / 12 * 9);\n}\n.push-10 {\n  left: 83.33333%;\n  left: calc(100% / 12 * 10);\n  left: -webkit-calc(100% / 12 * 10);\n  left: -moz-calc(100% / 12 * 10);\n}\n.pull-10 {\n  left: -83.33333%;\n  left: calc(-100% / 12 * 10);\n  left: -webkit-calc(-100% / 12 * 10);\n  left: -moz-calc(-100% / 12 * 10);\n}\n.push-11 {\n  left: 91.66666%;\n  left: calc(100% / 12 * 11);\n  left: -webkit-calc(100% / 12 * 11);\n  left: -moz-calc(100% / 12 * 11);\n}\n.pull-11 {\n  left: -91.66666%;\n  left: calc(-100% / 12 * 11);\n  left: -webkit-calc(-100% / 12 * 11);\n  left: -moz-calc(-100% / 12 * 11);\n}\n.row {\n  padding-top: 1em;\n  padding-bottom: 1em;\n}\n.no-desktop {\n  display: none;\n}\n.no-margin {\n  margin: 0;\n}\n.no-padding {\n  padding: 0;\n}\n@media only screen and (min-width: 660px) and (max-width: 959px) {\n  .container,\n  .tablet-container {\n    max-width: 960px;\n    padding-left: 20px;\n    padding-right: 20px;\n    margin-left: auto;\n    margin-right: auto;\n    float: none;\n  }\n  .container:first-child,\n  .tablet-container:first-child {\n    margin-left: auto;\n  }\n  .tablet-container-full {\n    padding-left: 0;\n    padding-right: 0;\n    margin-left: auto;\n    margin-right: auto;\n    float: none;\n  }\n  .tablet-container-full:first-child {\n    margin-left: auto;\n  }\n  .tablet-no-gutter {\n    padding-left: 0;\n    padding-right: 0;\n  }\n  .tablet-col-1 {\n    width: 8.33333%;\n    width: calc(100% / 12 * 1);\n    width: -webkit-calc(100% / 12 * 1);\n    width: -moz-calc(100% / 12 * 1);\n  }\n  .tablet-col-2 {\n    width: 16.66667%;\n    width: calc(100% / 12 * 2);\n    width: -webkit-calc(100% / 12 * 2);\n    width: -moz-calc(100% / 12 * 2);\n  }\n  .tablet-col-3,\n  .tablet-col-1-4 {\n    width: 25%;\n    width: calc(100% / 12 * 3);\n    width: -webkit-calc(100% / 12 * 3);\n    width: -moz-calc(100% / 12 * 3);\n  }\n  .tablet-col-4,\n  .tablet-col-1-3 {\n    width: 33.33333%;\n    width: calc(100% / 12 * 4);\n    width: -webkit-calc(100% / 12 * 4);\n    width: -moz-calc(100% / 12 * 4);\n  }\n  .tablet-col-5 {\n    width: 41.66665%;\n    width: calc(100% / 12 * 5);\n    width: -webkit-calc(100% / 12 * 5);\n    width: -moz-calc(100% / 12 * 5);\n  }\n  .tablet-col-6,\n  .tablet-col-1-2 {\n    width: 50%;\n    width: calc(100% / 12 * 6);\n    width: -webkit-calc(100% / 12 * 6);\n    width: -moz-calc(100% / 12 * 6);\n  }\n  .tablet-col-7 {\n    width: 58.33333%;\n    width: calc(100% / 12 * 7);\n    width: -webkit-calc(100% / 12 * 7);\n    width: -moz-calc(100% / 12 * 7);\n  }\n  .tablet-col-8 {\n    width: 66.66666%;\n    width: calc(100% / 12 * 8);\n    width: -webkit-calc(100% / 12 * 8);\n    width: -moz-calc(100% / 12 * 8);\n  }\n  .tablet-col-9,\n  .tablet-col-3-4 {\n    width: 75%;\n    width: calc(100% / 12 * 9);\n    width: -webkit-calc(100% / 12 * 9);\n    width: -moz-calc(100% / 12 * 9);\n  }\n  .tablet-col-10 {\n    width: 83.33333%;\n    width: calc(100% / 12 * 10);\n    width: -webkit-calc(100% / 12 * 10);\n    width: -moz-calc(100% / 12 * 10);\n  }\n  .tablet-col-11 {\n    width: 91.66666%;\n    width: calc(100% / 12 * 11);\n    width: -webkit-calc(100% / 12 * 11);\n    width: -moz-calc(100% / 12 * 11);\n  }\n  .tablet-col-12 {\n    width: 100%;\n  }\n  .tablet-push-1 {\n    left: 8.33333%;\n    left: calc(100% / 12 * 1);\n    left: -webkit-calc(100% / 12 * 1);\n    left: -moz-calc(100% / 12 * 1);\n  }\n  .tablet-pull-1 {\n    left: -8.33333%;\n    left: calc(-100% / 12 * 1);\n    left: -webkit-calc(-100% / 12 * 1);\n    left: -moz-calc(-100% / 12 * 1);\n  }\n  .tablet-push-2 {\n    left: 16.66667%;\n    left: calc(100% / 12 * 2);\n    left: -webkit-calc(100% / 12 * 2);\n    left: -moz-calc(100% / 12 * 2);\n  }\n  .tablet-pull-2 {\n    left: -16.66667%;\n    left: calc(-100% / 12 * 2);\n    left: -webkit-calc(-100% / 12 * 2);\n    left: -moz-calc(-100% / 12 * 2);\n  }\n  .tablet-push-3,\n  .tablet-push-1-4 {\n    left: 25%;\n    left: calc(100% / 12 * 3);\n    left: -webkit-calc(100% / 12 * 3);\n    left: -moz-calc(100% / 12 * 3);\n  }\n  .tablet-pull-3,\n  .tablet-pull-1-4 {\n    left: -25%;\n    left: calc(-100% / 12 * 3);\n    left: -webkit-calc(-100% / 12 * 3);\n    left: -moz-calc(-100% / 12 * 3);\n  }\n  .tablet-push-4,\n  .tablet-push-1-3 {\n    left: 33.33333%;\n    left: calc(100% / 12 * 4);\n    left: -webkit-calc(100% / 12 * 4);\n    left: -moz-calc(100% / 12 * 4);\n  }\n  .tablet-pull-4,\n  .tablet-pull-1-3 {\n    left: -33.33333%;\n    left: calc(-100% / 12 * 4);\n    left: -webkit-calc(-100% / 12 * 4);\n    left: -moz-calc(-100% / 12 * 4);\n  }\n  .tablet-push-5 {\n    left: 41.66665%;\n    left: calc(100% / 12 * 5);\n    left: -webkit-calc(100% / 12 * 5);\n    left: -moz-calc(100% / 12 * 5);\n  }\n  .tablet-pull-5 {\n    left: -41.66665%;\n    left: calc(-100% / 12 * 5);\n    left: -webkit-calc(-100% / 12 * 5);\n    left: -moz-calc(-100% / 12 * 5);\n  }\n  .tablet-push-6,\n  .tablet-push-1-2 {\n    left: 50%;\n    left: calc(100% / 12 * 6);\n    left: -webkit-calc(100% / 12 * 6);\n    left: -moz-calc(100% / 12 * 6);\n  }\n  .tablet-pull-6,\n  .tablet-pull-1-2 {\n    left: -50%;\n    left: calc(-100% / 12 * 6);\n    left: -webkit-calc(-100% / 12 * 6);\n    left: -moz-calc(-100% / 12 * 6);\n  }\n  .tablet-push-7 {\n    left: 58.33333%;\n    left: calc(100% / 12 * 7);\n    left: -webkit-calc(100% / 12 * 7);\n    left: -moz-calc(100% / 12 * 7);\n  }\n  .tablet-pull-7 {\n    left: -58.33333%;\n    left: calc(-100% / 12 * 7);\n    left: -webkit-calc(-100% / 12 * 7);\n    left: -moz-calc(-100% / 12 * 7);\n  }\n  .tablet-push-8 {\n    left: 66.66666%;\n    left: calc(100% / 12 * 8);\n    left: -webkit-calc(100% / 12 * 8);\n    left: -moz-calc(100% / 12 * 8);\n  }\n  .tablet-pull-8 {\n    left: -66.66666%;\n    left: calc(-100% / 12 * 8);\n    left: -webkit-calc(-100% / 12 * 8);\n    left: -moz-calc(-100% / 12 * 8);\n  }\n  .tablet-push-9,\n  .tablet-push-3-4 {\n    left: 75%;\n    left: calc(100% / 12 * 9);\n    left: -webkit-calc(100% / 12 * 9);\n    left: -moz-calc(100% / 12 * 9);\n  }\n  .tablet-pull-9,\n  .tablet-pull-3-4 {\n    left: -75%;\n    left: calc(-100% / 12 * 9);\n    left: -webkit-calc(-100% / 12 * 9);\n    left: -moz-calc(-100% / 12 * 9);\n  }\n  .tablet-push-10 {\n    left: 83.33333%;\n    left: calc(100% / 12 * 10);\n    left: -webkit-calc(100% / 12 * 10);\n    left: -moz-calc(100% / 12 * 10);\n  }\n  .tablet-pull-10 {\n    left: -83.33333%;\n    left: calc(-100% / 12 * 10);\n    left: -webkit-calc(-100% / 12 * 10);\n    left: -moz-calc(-100% / 12 * 10);\n  }\n  .tablet-push-11 {\n    left: 91.66666%;\n    left: calc(100% / 12 * 11);\n    left: -webkit-calc(100% / 12 * 11);\n    left: -moz-calc(100% / 12 * 11);\n  }\n  .tablet-pull-11 {\n    left: -91.66666%;\n    left: calc(-100% / 12 * 11);\n    left: -webkit-calc(-100% / 12 * 11);\n    left: -moz-calc(-100% / 12 * 11);\n  }\n  .tablet-no-push,\n  .tablet-no-pull {\n    left: auto;\n  }\n  .tablet-row {\n    padding-top: 1em;\n    padding-bottom: 1em;\n  }\n  .tablet-full {\n    left: auto;\n    clear: both;\n    float: none;\n    width: 100%;\n    margin: 1em 0 0 0;\n    display: block;\n  }\n  .tablet-full:first-child {\n    margin-top: 0;\n  }\n  .tablet-text-left {\n    text-align: left;\n  }\n  .tablet-text-right {\n    text-align: right;\n  }\n  .tablet-text-center {\n    text-align: center;\n  }\n  .tablet-left {\n    float: left;\n  }\n  .tablet-right {\n    float: right;\n  }\n  .tablet-no-float {\n    float: none;\n  }\n  .tablet-no-margin {\n    margin: 0;\n  }\n  .tablet-no-padding {\n    padding: 0;\n  }\n  .no-tablet {\n    display: none;\n  }\n  .show-tablet {\n    display: block;\n  }\n}\n@media only screen and (max-width: 659px) {\n  .container,\n  .mobile-container {\n    padding-left: 20px;\n    padding-right: 20px;\n    margin-left: auto;\n    margin-right: auto;\n    float: none;\n  }\n  .container:first-child,\n  .mobile-container:first-child {\n    margin-left: auto;\n  }\n  .mobile-container-full {\n    padding-left: 0;\n    padding-right: 0;\n    margin-left: auto;\n    margin-right: auto;\n    float: none;\n  }\n  .mobile-container-full:first-child {\n    margin-left: auto;\n  }\n  .mobile-no-gutter {\n    padding-left: 0;\n    padding-right: 0;\n  }\n  .mobile-col-1-2 {\n    width: 50%;\n    width: calc(100% / 12 * 6);\n    width: -webkit-calc(100% / 12 * 6);\n    width: -moz-calc(100% / 12 * 6);\n  }\n  .mobile-col-1-3 {\n    width: 33.33333%;\n    width: calc(100% / 12 * 4);\n    width: -webkit-calc(100% / 12 * 4);\n    width: -moz-calc(100% / 12 * 4);\n  }\n  .mobile-col-1-4 {\n    width: 25%;\n    width: calc(100% / 12 * 3);\n    width: -webkit-calc(100% / 12 * 3);\n    width: -moz-calc(100% / 12 * 3);\n  }\n  .mobile-col-3-4 {\n    width: 75%;\n    width: calc(100% / 12 * 9);\n    width: -webkit-calc(100% / 12 * 9);\n    width: -moz-calc(100% / 12 * 9);\n  }\n  .mobile-push-1-2 {\n    left: 50%;\n    left: calc(100% / 12 * 6);\n    left: -webkit-calc(100% / 12 * 6);\n    left: -moz-calc(100% / 12 * 6);\n  }\n  .mobile-pull-1-2 {\n    left: -50%;\n    left: calc(-100% / 12 * 6);\n    left: -webkit-calc(-100% / 12 * 6);\n    left: -moz-calc(-100% / 12 * 6);\n  }\n  .mobile-push-1-3 {\n    left: 25%;\n    left: calc(100% / 12 * 3);\n    left: -webkit-calc(100% / 12 * 3);\n    left: -moz-calc(100% / 12 * 3);\n  }\n  .mobile-pull-1-3 {\n    left: -25%;\n    left: calc(-100% / 12 * 3);\n    left: -webkit-calc(-100% / 12 * 3);\n    left: -moz-calc(-100% / 12 * 3);\n  }\n  .mobile-push-1-4 {\n    left: 33.33333%;\n    left: calc(100% / 12 * 4);\n    left: -webkit-calc(100% / 12 * 4);\n    left: -moz-calc(100% / 12 * 4);\n  }\n  .mobile-pull-1-4 {\n    left: -33.33333%;\n    left: calc(-100% / 12 * 4);\n    left: -webkit-calc(-100% / 12 * 4);\n    left: -moz-calc(-100% / 12 * 4);\n  }\n  .mobile-push-3-4 {\n    left: 75%;\n    left: calc(100% / 12 * 9);\n    left: -webkit-calc(100% / 12 * 9);\n    left: -moz-calc(100% / 12 * 9);\n  }\n  .mobile-pull-3-4 {\n    left: -75%;\n    left: calc(-100% / 12 * 9);\n    left: -webkit-calc(-100% / 12 * 9);\n    left: -moz-calc(-100% / 12 * 9);\n  }\n  .mobile-no-push,\n  .mobile-no-pull {\n    left: auto;\n  }\n  .mobile-row {\n    padding-top: 1em;\n    padding-bottom: 1em;\n  }\n  .mobile-full {\n    left: auto;\n    clear: both;\n    float: none;\n    width: 100%;\n    margin: 0.2em 0 0 0;\n    display: block;\n  }\n  .mobile-full:first-child {\n    margin-top: 0;\n  }\n  .mobile-text-left {\n    text-align: left;\n  }\n  .mobile-text-right {\n    text-align: right;\n  }\n  .mobile-text-center {\n    text-align: center;\n  }\n  .mobile-left {\n    float: left;\n  }\n  .mobile-right {\n    float: right;\n  }\n  .mobile-no-float {\n    float: none;\n  }\n  .mobile-no-margin {\n    margin: 0;\n  }\n  .mobile-no-padding {\n    padding: 0;\n  }\n  .no-mobile {\n    display: none;\n  }\n  .show-mobile {\n    display: block;\n  }\n}\n@media print {\n  * {\n    background: transparent;\n  }\n  a,\n  a:visited {\n    text-decoration: underline;\n  }\n  abbr[title]:after {\n    content: \" (\" attr(title) \")\";\n  }\n  pre,\n  blockquote {\n    border: 1px solid #999;\n    page-break-inside: avoid;\n  }\n  thead {\n    display: table-header-group;\n  }\n  tr,\n  img {\n    page-break-inside: avoid;\n  }\n  img {\n    max-width: 100%;\n  }\n  @page {\n    margin: 0.5cm;\n  }\n  p,\n  h2,\n  h3 {\n    orphans: 3;\n    widows: 3;\n  }\n  h2,\n  h3 {\n    page-break-after: avoid;\n  }\n}\n@font-face {\n  font-family: 'Source Sans Pro';\n  src: url(" + __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"./fonts/SourceSansPro-ExtraLight.otf\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())) + ");\n  font-weight: 100;\n  font-style: normal;\n}\n@font-face {\n  font-family: 'Source Sans Pro';\n  src: url(" + __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"./fonts/SourceSansPro-ExtraLightIt.otf\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())) + ");\n  font-weight: 100;\n  font-style: italic;\n}\n@font-face {\n  font-family: 'Source Sans Pro';\n  src: url(" + __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"./fonts/SourceSansPro-Light.otf\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())) + ");\n  font-weight: 300;\n  font-style: normal;\n}\n@font-face {\n  font-family: 'Source Sans Pro';\n  src: url(" + __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"./fonts/SourceSansPro-Regular.otf\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())) + ");\n  font-weight: 400;\n  font-style: normal;\n}\n@font-face {\n  font-family: 'Source Sans Pro';\n  src: url(" + __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"./fonts/SourceSansPro-Semibold.otf\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())) + ");\n  font-weight: 500;\n  font-style: normal;\n}\n@font-face {\n  font-family: 'Source Sans Pro';\n  src: url(" + __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"./fonts/SourceSansPro-Bold.otf\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())) + ");\n  font-weight: 700;\n  font-style: normal;\n}\n@font-face {\n  font-family: 'Montserrat';\n  src: url(" + __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"./fonts/Montserrat-Regular.otf\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())) + ");\n  font-weight: 400;\n  font-style: normal;\n}\n.dapp-clear-fix {\n  clear: both;\n}\n.dapp-overflow {\n  overflow-y: auto;\n  overflow-x: hidden;\n  -webkit-overflow-scrolling: touch;\n}\n.dapp-shorten-text {\n  display: inline-block;\n  -o-text-overflow: ellipsis;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n  max-width: 100%;\n}\n.dapp-button-reset {\n  background: none;\n  border: 0;\n  padding: 0;\n  margin: 0;\n  -webkit-box-sizing: content-box;\n  -moz-box-sizing: content-box;\n  box-sizing: content-box;\n}\n.dapp-button-reset:hover,\n.dapp-button-reset:focus {\n  outline: 0;\n}\n.dapp-shadow-none {\n  -webkit-box-shadow: 0 0 0 rgba(0, 0, 0, 0);\n  -moz-box-shadow: 0 0 0 rgba(0, 0, 0, 0);\n  box-shadow: 0 0 0 rgba(0, 0, 0, 0);\n}\n.dapp-shadow-small {\n  -webkit-box-shadow: 0 0px 1px rgba(0, 0, 0, 0.3);\n  -moz-box-shadow: 0 0px 1px rgba(0, 0, 0, 0.3);\n  box-shadow: 0 0px 1px rgba(0, 0, 0, 0.3);\n}\n.dapp-shadow-medium {\n  -webkit-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);\n  -moz-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);\n  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);\n}\n.dapp-shadow-large {\n  -webkit-box-shadow: 0 1px 16px rgba(0, 0, 0, 0.3);\n  -moz-box-shadow: 0 1px 16px rgba(0, 0, 0, 0.3);\n  box-shadow: 0 1px 16px rgba(0, 0, 0, 0.3);\n}\n.dapp-horizontal-menu,\n.dapp-vertical-menu {\n  padding: 0;\n  margin: 0;\n  list-style: none;\n}\n.dapp-horizontal-menu li {\n  display: inline-block;\n  padding: 0;\n  margin: 0;\n}\n.dapp-vertical-menu li {\n  display: block;\n  padding: 0;\n  margin: 0;\n}\n.cubic-bezier {\n  -webkit-transition-timing-function: cubic-bezier(0.15, 0.3, 0.1, 1);\n  -moz-transition-timing-function: cubic-bezier(0.15, 0.3, 0.1, 1);\n  -o-transition-timing-function: cubic-bezier(0.15, 0.3, 0.1, 1);\n  transition-timing-function: cubic-bezier(0.15, 0.3, 0.1, 1);\n}\n.cubic-bezier.animate {\n  -webkit-transition-timing-function: cubic-bezier(0.5, 0.1, 0.2, 1);\n  -moz-transition-timing-function: cubic-bezier(0.5, 0.1, 0.2, 1);\n  -o-transition-timing-function: cubic-bezier(0.5, 0.1, 0.2, 1);\n  transition-timing-function: cubic-bezier(0.5, 0.1, 0.2, 1);\n}\n#dapp-form-helper-iframe {\n  display: none;\n}\n/* PROGRESSBAR */\nprogress {\n  -webkit-appearance: none;\n  appearance: none;\n  height: 9.2px;\n  margin: 4.6px;\n  color: #0e73b8;\n}\nprogress::-webkit-progress-bar {\n  background-color: rgba(245, 244, 242, 0.9);\n  border-radius: 2px;\n  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.2);\n}\nprogress::-moz-progress-bar {\n  background-color: rgba(245, 244, 242, 0.9);\n  border-radius: 2px;\n  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.2);\n}\nprogress::progress-bar {\n  background-color: rgba(245, 244, 242, 0.9);\n  border-radius: 2px;\n  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.2);\n}\nprogress::-webkit-progress-value {\n  background-color: #0e73b8;\n  opacity: 0.8;\n  border-radius: 2px;\n}\nprogress::-moz-progress-value {\n  background-color: #0e73b8;\n  opacity: 0.8;\n  border-radius: 2px;\n}\nprogress::progress-value {\n  background-color: #0e73b8;\n  opacity: 0.8;\n  border-radius: 2px;\n}\n.dapp-progress {\n  position: relative;\n  width: 100%;\n  height: 18.4px;\n  border-bottom: 1px solid #0e73b8;\n}\n.dapp-progress > span {\n  display: block;\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  left: 0;\n  right: 0;\n  line-height: 18.4px;\n  text-align: center;\n  font-size: 0.7em;\n}\n.dapp-progress .dapp-bar {\n  height: 100%;\n  background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB2aWV3Qm94PSIwIDAgMSAxIiBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIj48bGluZWFyR3JhZGllbnQgaWQ9Imxlc3NoYXQtZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMTAwJSIgeDI9IjAlIiB5Mj0iMCUiPjxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiMwZTczYjgiIHN0b3Atb3BhY2l0eT0iMSIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzNjYTdmMCIgc3RvcC1vcGFjaXR5PSIxIi8+PC9saW5lYXJHcmFkaWVudD48cmVjdCB4PSIwIiB5PSIwIiB3aWR0aD0iMSIgaGVpZ2h0PSIxIiBmaWxsPSJ1cmwoI2xlc3NoYXQtZ2VuZXJhdGVkKSIgLz48L3N2Zz4=);\n  background-image: -webkit-linear-gradient(bottom, #0e73b8 0%, #3ca7f0 100%);\n  background-image: -moz-linear-gradient(bottom, #0e73b8 0%, #3ca7f0 100%);\n  background-image: -o-linear-gradient(bottom, #0e73b8 0%, #3ca7f0 100%);\n  background-image: linear-gradient(to top, #0e73b8 0%, #3ca7f0 100%);\n  -webkit-transition: width 10400ms linear;\n  -moz-transition: width 10400ms linear;\n  -o-transition: width 10400ms linear;\n  transition: width 10400ms linear;\n}\n.dapp-message {\n  position: relative;\n  max-width: 512px;\n  margin: 48px 0;\n  font-size: 1.5em;\n  font-weight: 100;\n  line-height: 27pt;\n}\n.dapp-count {\n  display: -webkit-box;\n  display: -moz-box;\n  display: -webkit-flex;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-align: center;\n  -moz-box-align: center;\n  -webkit-align-items: center;\n  -ms-flex-align: center;\n  align-items: center;\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  right: 0;\n  padding: 0 8px;\n  color: #FAFAFA;\n  font-weight: 100;\n  zoom: 1;\n  filter: alpha(opacity=70);\n  -webkit-opacity: 0.7;\n  -moz-opacity: 0.7;\n  opacity: 0.7;\n  -webkit-transition: opacity 400ms;\n  -moz-transition: opacity 400ms;\n  -o-transition: opacity 400ms;\n  transition: opacity 400ms;\n}\n.dapp-count.animate {\n  zoom: 1;\n  filter: alpha(opacity=0);\n  -webkit-opacity: 0;\n  -moz-opacity: 0;\n  opacity: 0;\n}\n.active .dapp-count {\n  background-color: #f5f4f2;\n  color: #9c9090;\n}\n.dapp-url-bar {\n  display: block;\n  text-align: center;\n  width: 100%;\n  -webkit-background-clip: padding-box;\n  -moz-background-clip: padding;\n  background-clip: padding-box;\n  -webkit-border-radius: 8px;\n  -moz-border-radius: 8px;\n  border-radius: 8px;\n}\n.dapp-account-list {\n  list-style-type: none;\n  overflow: auto;\n  padding-left: 0;\n  padding: 0;\n  margin: 0;\n  list-style: none;\n}\n.dapp-account-list li {\n  display: block;\n  padding: 0;\n  margin: 0;\n}\n.dapp-account-list li {\n  padding: 4.6px 0;\n  padding-left: 48px;\n  min-height: 46px;\n  position: relative;\n  overflow: hidden;\n  border-bottom: solid 1px #FAFAFA;\n  background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB2aWV3Qm94PSIwIDAgMSAxIiBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIj48bGluZWFyR3JhZGllbnQgaWQ9Imxlc3NoYXQtZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMTAwJSIgeDI9IjAlIiB5Mj0iMCUiPjxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9InJnYigwLDAsMCkiIHN0b3Atb3BhY2l0eT0iMCIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2Y1ZjRmMiIgc3RvcC1vcGFjaXR5PSIxIi8+PC9saW5lYXJHcmFkaWVudD48cmVjdCB4PSIwIiB5PSIwIiB3aWR0aD0iMSIgaGVpZ2h0PSIxIiBmaWxsPSJ1cmwoI2xlc3NoYXQtZ2VuZXJhdGVkKSIgLz48L3N2Zz4=);\n  background-image: -webkit-linear-gradient(bottom, transparent 0%, #f5f4f2 100%);\n  background-image: -moz-linear-gradient(bottom, transparent 0%, #f5f4f2 100%);\n  background-image: -o-linear-gradient(bottom, transparent 0%, #f5f4f2 100%);\n  background-image: linear-gradient(to top, transparent 0%, #f5f4f2 100%);\n  font-family: 'Source Sans Pro', 'Helvetica Neue', Helvetica, Arial, Sans;\n}\n.dapp-account-list li.selected,\n.dapp-account-list li button.selected {\n  background: #6691C2;\n  min-height: 36.8px;\n}\n.dapp-account-list li.selected:hover,\n.dapp-account-list li button.selected:hover,\n.dapp-account-list li.selected:focus,\n.dapp-account-list li button.selected:focus {\n  background: #6691C2;\n}\n.dapp-account-list li.selected h3,\n.dapp-account-list li button.selected h3,\n.dapp-account-list li.selected span,\n.dapp-account-list li button.selected span {\n  color: #FAFAFA;\n  text-shadow: rgba(0, 0, 0, 0.2) 0 -1px 0;\n}\n.dapp-account-list li.selected figure,\n.dapp-account-list li button.selected figure {\n  position: absolute;\n  color: #FAFAFA;\n  right: 0;\n  top: 0;\n  font-size: 160%;\n  z-index: 10;\n  bottom: 0;\n  text-align: center;\n  padding-top: 4px;\n  padding: 9px 10px;\n  background: linear-gradient(to right, transparent, #6691C2 50%);\n}\n.dapp-account-list li button {\n  position: relative;\n  display: block;\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  padding: 4.6px 0;\n  padding-left: 48px;\n  margin: -4.6px 0;\n  margin-left: -48px;\n  width: 100%;\n  height: 100%;\n  min-height: 36.8px;\n  font-family: 'Source Sans Pro', 'Helvetica Neue', Helvetica, Arial, Sans;\n  text-align: left;\n}\n.dapp-account-list li button:hover,\n.dapp-account-list li button:focus {\n  background: #FAFAFA;\n  border: 0;\n}\n.dapp-account-list li .dapp-identicon {\n  position: absolute;\n  top: 6.13333333px;\n  left: 8px;\n}\n.dapp-account-list li h3 {\n  display: inline-block;\n  -o-text-overflow: ellipsis;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n  max-width: 100%;\n  display: block;\n  padding: 0;\n  margin: 0;\n  color: #6691C2;\n  text-transform: none;\n  font-weight: 400;\n  font-size: 90%;\n  text-shadow: #fff 0 1px 0;\n}\n.dapp-account-list li h3 + span {\n  white-space: nowrap;\n  overflow: hidden;\n  text-overflow: ellipsis;\n  font-size: 75%;\n  opacity: 0.5;\n  color: #827a7a;\n}\na,\na:visited,\nbutton {\n  text-decoration: none;\n  color: #6691C2;\n  outline: 0;\n}\na:hover,\na:visited:hover,\nbutton:hover,\na:focus,\na:visited:focus,\nbutton:focus {\n  outline: 0;\n}\na:focus,\na:visited:focus,\nbutton:focus {\n  border-bottom: 1px dotted #6691C2;\n}\na:active,\na:visited:active,\nbutton:active {\n  -webkit-transform: scale(0.95);\n  -moz-transform: scale(0.95);\n  -o-transform: scale(0.95);\n  -ms-transform: scale(0.95);\n  transform: scale(0.95);\n  border-bottom: 0;\n}\nbutton {\n  background: none;\n  border: 0;\n  padding: 0;\n  margin: 0;\n  -webkit-box-sizing: content-box;\n  -moz-box-sizing: content-box;\n  box-sizing: content-box;\n  font-weight: inherit;\n}\nbutton:hover,\nbutton:focus {\n  outline: 0;\n}\nhr {\n  border: 0;\n  height: 0;\n  margin: 32px 0;\n  background-color: transparent;\n  border-bottom: 1px solid #CCC6C6;\n}\nh1 {\n  margin: 16px 0;\n  margin-bottom: 48px;\n  font-weight: 100;\n  font-size: 2.2em;\n  color: #827a7a;\n}\nh1 span {\n  font-weight: 500;\n}\nh1 + h2 {\n  margin-top: 0;\n}\nh1 strong {\n  font-weight: 400;\n}\nh2 {\n  display: inline-block;\n  padding: 0 8px;\n  padding-bottom: 1px;\n  margin: 48px 0;\n  font-weight: 500;\n  font-size: 1em;\n  text-transform: uppercase;\n  background: #827a7a;\n  color: #FAFAFA;\n  font-family: 'Montserrat';\n  font-weight: 400;\n}\nh2 + table {\n  margin-top: 0;\n}\nh3 {\n  margin: 16px 0;\n  padding: 0;\n  color: rgba(130, 122, 122, 0.7);\n  text-transform: uppercase;\n  font-weight: 500;\n  font-size: 1em;\n}\nh4 {\n  margin: 16px 0;\n  padding: 0;\n  color: rgba(130, 122, 122, 0.7);\n  font-weight: 500;\n  font-size: 1em;\n}\npre,\ncode {\n  overflow-y: auto;\n  overflow-x: hidden;\n  -webkit-overflow-scrolling: touch;\n  word-break: break-word;\n  padding: 6.13333333px;\n  background-color: #f5f4f2;\n  font-size: 0.8em;\n  text-align: left;\n}\ntable {\n  width: 100%;\n  margin: 16px 0;\n}\ntable.dapp-zebra tbody tr:nth-child(odd) {\n  background-color: rgba(204, 198, 198, 0.3);\n}\ntable.dapp-zebra thead + tbody tr:nth-child(even) {\n  background-color: rgba(204, 198, 198, 0.3);\n}\ntable + h2,\ntable + h3 {\n  margin-top: 32px;\n}\ntable td {\n  padding: 12.26666667px 16px;\n}\ntable td h2 {\n  margin: 0;\n  padding: 0;\n  background-color: transparent;\n  color: #827a7a;\n  text-transform: none;\n  font-style: normal;\n}\ntable td p {\n  padding-top: 8px;\n  margin: 0;\n  font-size: 0.9em;\n}\ntable thead {\n  background-color: #827a7a;\n  color: #FAFAFA;\n  text-transform: uppercase;\n}\ntable tbody tr td span {\n  display: inline-block;\n  -o-text-overflow: ellipsis;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n  max-width: 100%;\n}\n.dapp-input {\n  border: 0;\n  border-bottom: solid 2px #CCC6C6;\n  background-color: #f5f4f2;\n  color: #6691C2;\n}\n.dapp-input::-webkit-input-placeholder {\n  color: #CCC6C6;\n}\n.dapp-input:-moz-placeholder {\n  color: #CCC6C6;\n}\n.dapp-input::-moz-placeholder {\n  color: #CCC6C6;\n}\n.dapp-input:-ms-input-placeholder {\n  color: #CCC6C6;\n}\n.dapp-input:disabled {\n  color: #695e5e;\n}\n.dapp-input.dapp-tiny {\n  font-size: 0.6em;\n  border-bottom-width: 1px;\n}\n.dapp-input.dapp-small {\n  font-size: 0.8em;\n}\n.dapp-input.dapp-large {\n  font-size: 1.5em;\n}\n.dapp-input.dapp-error {\n  color: #C20E25;\n  background: rgba(194, 14, 37, 0.1);\n  border-color: rgba(194, 14, 37, 0.15);\n}\n.dapp-address-input input {\n  border: 0;\n  border-bottom: solid 2px #CCC6C6;\n  background-color: #f5f4f2;\n  color: #6691C2;\n}\n.dapp-address-input input::-webkit-input-placeholder {\n  color: #CCC6C6;\n}\n.dapp-address-input input:-moz-placeholder {\n  color: #CCC6C6;\n}\n.dapp-address-input input::-moz-placeholder {\n  color: #CCC6C6;\n}\n.dapp-address-input input:-ms-input-placeholder {\n  color: #CCC6C6;\n}\n.dapp-address-input input:disabled {\n  color: #695e5e;\n}\n.dapp-address-input input.dapp-tiny {\n  font-size: 0.6em;\n  border-bottom-width: 1px;\n}\n.dapp-address-input input.dapp-small {\n  font-size: 0.8em;\n}\n.dapp-address-input input.dapp-large {\n  font-size: 1.5em;\n}\n.dapp-address-input input.dapp-error {\n  color: #C20E25;\n  background: rgba(194, 14, 37, 0.1);\n  border-color: rgba(194, 14, 37, 0.15);\n}\ninput,\nselect,\ntextarea {\n  border: 0;\n  border-bottom: solid 2px #CCC6C6;\n  background-color: #f5f4f2;\n  color: #6691C2;\n  display: inline-block;\n  width: 300px;\n  max-width: 100%;\n  margin-top: 18.4px;\n  padding: 6.13333333px 16px;\n  padding-bottom: 4.08888889px;\n  -webkit-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  box-sizing: border-box;\n  -webkit-background-clip: padding-box;\n  -moz-background-clip: padding;\n  background-clip: padding-box;\n  -webkit-border-radius: 0;\n  -moz-border-radius: 0;\n  border-radius: 0;\n  font-size: 1em;\n  font-weight: 300;\n}\ninput::-webkit-input-placeholder,\nselect::-webkit-input-placeholder,\ntextarea::-webkit-input-placeholder {\n  color: #CCC6C6;\n}\ninput:-moz-placeholder,\nselect:-moz-placeholder,\ntextarea:-moz-placeholder {\n  color: #CCC6C6;\n}\ninput::-moz-placeholder,\nselect::-moz-placeholder,\ntextarea::-moz-placeholder {\n  color: #CCC6C6;\n}\ninput:-ms-input-placeholder,\nselect:-ms-input-placeholder,\ntextarea:-ms-input-placeholder {\n  color: #CCC6C6;\n}\ninput:disabled,\nselect:disabled,\ntextarea:disabled {\n  color: #695e5e;\n}\ninput.dapp-tiny,\nselect.dapp-tiny,\ntextarea.dapp-tiny {\n  font-size: 0.6em;\n  border-bottom-width: 1px;\n}\ninput.dapp-small,\nselect.dapp-small,\ntextarea.dapp-small {\n  font-size: 0.8em;\n}\ninput.dapp-large,\nselect.dapp-large,\ntextarea.dapp-large {\n  font-size: 1.5em;\n}\ninput.dapp-error,\nselect.dapp-error,\ntextarea.dapp-error {\n  color: #C20E25;\n  background: rgba(194, 14, 37, 0.1);\n  border-color: rgba(194, 14, 37, 0.15);\n}\ninput:focus,\nselect:focus,\ntextarea:focus {\n  outline: 0;\n  border-color: #6691C2;\n}\nh1 + input,\nh1 + select,\nh1 + textarea,\nh2 + input,\nh2 + select,\nh2 + textarea,\nh3 + input,\nh3 + select,\nh3 + textarea {\n  margin-top: 0;\n}\n:disabled {\n  color: #695e5e;\n}\ninput[type=\"checkbox\"],\ninput[type=\"radio\"] {\n  display: inline-block;\n  position: relative;\n  margin: 0;\n  outline: none !important;\n  -webkit-appearance: none;\n  width: auto;\n  width: 24px;\n  height: 24px;\n}\ninput[type=\"checkbox\"]::before,\ninput[type=\"radio\"]::before {\n  content: '';\n  position: relative;\n  top: 0;\n  left: 0;\n  display: block;\n  background: #f5f4f2;\n  border: 1px solid #f5f4f2;\n  -webkit-box-shadow: inset 0 0 2px rgba(0, 0, 0, 0.2);\n  -moz-box-shadow: inset 0 0 2px rgba(0, 0, 0, 0.2);\n  box-shadow: inset 0 0 2px rgba(0, 0, 0, 0.2);\n  width: 24px;\n  height: 24px;\n}\ninput[type=\"checkbox\"]:focus::before,\ninput[type=\"radio\"]:focus::before {\n  border-color: rgba(102, 145, 194, 0.4);\n}\ninput[type=\"checkbox\"]:disabled::before,\ninput[type=\"radio\"]:disabled::before {\n  cursor: not-allowed;\n  background-color: rgba(245, 244, 242, 0.8);\n  border-color: #f5f4f2;\n}\ninput[type=\"checkbox\"]:after,\ninput[type=\"radio\"]:after {\n  content: '';\n  display: inline-block;\n  position: absolute;\n  top: 6px;\n  left: 6px;\n  background: #6691C2;\n  -webkit-box-shadow: 0 0px 1px rgba(0, 0, 0, 0.3);\n  -moz-box-shadow: 0 0px 1px rgba(0, 0, 0, 0.3);\n  box-shadow: 0 0px 1px rgba(0, 0, 0, 0.3);\n  width: 12px;\n  height: 12px;\n  -webkit-transition: -webkit-transform 400ms;\n  -moz-transition: -moz-transform 400ms;\n  -o-transition: -o-transform 400ms;\n  transition: -webkit-transform 400ms,-moz-transform 400ms,-o-transform 400ms,transform 400ms;\n  -webkit-transform: scale(0);\n  -moz-transform: scale(0);\n  -o-transform: scale(0);\n  -ms-transform: scale(0);\n  transform: scale(0);\n}\ninput[type=\"checkbox\"]:checked:after,\ninput[type=\"radio\"]:checked:after {\n  -webkit-transform: scale(1);\n  -moz-transform: scale(1);\n  -o-transform: scale(1);\n  -ms-transform: scale(1);\n  transform: scale(1);\n}\ninput[type=\"checkbox\"]:disabled:after,\ninput[type=\"radio\"]:disabled:after {\n  background: rgba(102, 145, 194, 0.4);\n}\ninput[type=\"radio\"] {\n  -webkit-background-clip: padding-box;\n  -moz-background-clip: padding;\n  background-clip: padding-box;\n  -webkit-border-radius: 50%;\n  -moz-border-radius: 50%;\n  border-radius: 50%;\n}\ninput[type=\"radio\"]:before {\n  -webkit-background-clip: padding-box;\n  -moz-background-clip: padding;\n  background-clip: padding-box;\n  -webkit-border-radius: 50%;\n  -moz-border-radius: 50%;\n  border-radius: 50%;\n}\ninput[type=\"radio\"]:after {\n  -webkit-background-clip: padding-box;\n  -moz-background-clip: padding;\n  background-clip: padding-box;\n  -webkit-border-radius: 50%;\n  -moz-border-radius: 50%;\n  border-radius: 50%;\n}\ninput[type=\"range\"] {\n  -webkit-appearance: none;\n  padding: 0;\n  border: 0;\n  background-color: transparent;\n}\ninput[type=\"range\"]::-webkit-slider-runnable-track {\n  height: 5px;\n  background-color: #CCC6C6;\n  border: none;\n  -webkit-background-clip: padding-box;\n  -moz-background-clip: padding;\n  background-clip: padding-box;\n  -webkit-border-radius: 3px;\n  -moz-border-radius: 3px;\n  border-radius: 3px;\n}\ninput[type=\"range\"]::-webkit-slider-thumb {\n  -webkit-appearance: none;\n  border: none;\n  height: 16px;\n  width: 16px;\n  border-radius: 50%;\n  background-color: #695e5e;\n  margin-top: -6px;\n}\ninput[type=\"range\"]:focus {\n  outline: none;\n}\ninput[type=\"range\"]:focus::-webkit-slider-thumb {\n  background-color: #6691C2;\n}\ninput[type=\"range\"]::-moz-range-track {\n  height: 5px;\n  background-color: #CCC6C6;\n  border: none;\n  -webkit-background-clip: padding-box;\n  -moz-background-clip: padding;\n  background-clip: padding-box;\n  -webkit-border-radius: 3px;\n  -moz-border-radius: 3px;\n  border-radius: 3px;\n}\ninput[type=\"range\"]::-moz-range-thumb {\n  -webkit-appearance: none;\n  border: none;\n  height: 16px;\n  width: 16px;\n  border-radius: 50%;\n  background-color: #695e5e;\n  margin-top: -4px;\n}\ninput[type=\"range\"]:focus {\n  outline: none;\n}\ninput[type=\"range\"]:focus::-moz-range-thumb {\n  background-color: #6691C2;\n}\nlabel {\n  font-weight: 300;\n}\nfieldset {\n  border: 0;\n  padding: 0;\n  margin: 16px;\n}\nselect {\n  height: 45px;\n}\nbody {\n  display: -webkit-box;\n  display: -moz-box;\n  display: -webkit-flex;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-direction: normal;\n  -moz-box-direction: normal;\n  -webkit-box-orient: vertical;\n  -moz-box-orient: vertical;\n  -webkit-flex-direction: column;\n  -ms-flex-direction: column;\n  flex-direction: column;\n  min-height: 100vh;\n  padding: 0;\n  margin: 0;\n  background-color: #FAFAFA;\n  font: 100 16px 'Source Sans Pro', 'Helvetica Neue', arial, sans-serif;\n  color: #111;\n}\nbody.disable-scroll {\n  overflow: hidden;\n}\nbody.blur .dapp-flex-content,\nbody.blur .dapp-footer,\nbody.blur .dapp-header {\n  -webkit-filter: blur(4px);\n  -moz-filter: blur(4px);\n  -ms-filter: blur(4px);\n  filter: blur(4px);\n}\n.ethereum-dapp-url-bar-style-transparent .dapp-header {\n  padding-top: 73.6px;\n}\n.dapp-grid {\n  z-index: 999;\n  background: #FFF url(" + __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"./dapp-styles/hex-grid-tile.png\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())) + ");\n  background-size: 64px 111px;\n  position: absolute;\n  min-height: 100%;\n  left: 0;\n  right: 0;\n  opacity: 0.05;\n  pointer-events: none;\n}\n.dapp-container {\n  display: block;\n  position: relative;\n  margin: 0 auto;\n  max-width: 960px;\n}\n.dapp-header,\n.dapp-aside,\n.dapp-content,\n.dapp-footer {\n  position: relative;\n  padding: 12.26666667px 32px;\n  -webkit-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  box-sizing: border-box;\n}\n.dapp-header {\n  height: 64px;\n  margin-top: -5px;\n  padding-top: 17.26666667px;\n  -webkit-box-sizing: content-box;\n  -moz-box-sizing: content-box;\n  box-sizing: content-box;\n  background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB2aWV3Qm94PSIwIDAgMSAxIiBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIj48bGluZWFyR3JhZGllbnQgaWQ9Imxlc3NoYXQtZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPjxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNmZmZmZmYiIHN0b3Atb3BhY2l0eT0iMSIvPjxzdG9wIG9mZnNldD0iOTAlIiBzdG9wLWNvbG9yPSIjZTRkZWRlIiBzdG9wLW9wYWNpdHk9IjEiLz48L2xpbmVhckdyYWRpZW50PjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxIiBoZWlnaHQ9IjEiIGZpbGw9InVybCgjbGVzc2hhdC1nZW5lcmF0ZWQpIiAvPjwvc3ZnPg==);\n  background-image: -webkit-linear-gradient(top, #ffffff 0, #e4dede 90%);\n  background-image: -moz-linear-gradient(top, #ffffff 0, #e4dede 90%);\n  background-image: -o-linear-gradient(top, #ffffff 0, #e4dede 90%);\n  background-image: linear-gradient(to bottom, #ffffff 0, #e4dede 90%);\n}\n.dapp-header.dapp-small {\n  height: 18.4px;\n}\n.dapp-header.dapp-small nav li a i {\n  zoom: 1;\n  filter: alpha(opacity=0);\n  -webkit-opacity: 0;\n  -moz-opacity: 0;\n  opacity: 0;\n}\n.dapp-header nav {\n  position: absolute;\n  bottom: 0;\n}\n.dapp-header nav ul {\n  padding: 0;\n  margin: 0;\n  list-style: none;\n}\n.dapp-header nav ul li {\n  padding: 0;\n  margin: 0;\n}\n.dapp-header nav ul a {\n  display: inline-block;\n  padding: 6.13333333px 32px;\n  text-align: center;\n  border-bottom: 5px solid transparent;\n  color: #4677af;\n}\n.dapp-header nav ul a:focus {\n  border-color: #FAFAFA;\n}\n.dapp-header nav ul a.active {\n  -webkit-transform-origin: 50% 100%;\n  -moz-transform-origin: 50% 100%;\n  -o-transform-origin: 50% 100%;\n  -ms-transform-origin: 50% 100%;\n  transform-origin: 50% 100%;\n  color: #b7a6a6;\n  border-bottom: 5px solid #FAFAFA;\n}\n.dapp-header nav ul a:active {\n  border-bottom: transparent;\n}\n.dapp-header nav ul a i {\n  font-size: 1.5em;\n  -webkit-transition: opacity 200ms;\n  -moz-transition: opacity 200ms;\n  -o-transition: opacity 200ms;\n  transition: opacity 200ms;\n}\n.dapp-header nav ul a span {\n  display: block;\n  text-transform: uppercase;\n  font-weight: 400;\n}\n.dapp-footer {\n  height: 96px;\n  background-color: #111;\n}\n.dapp-flex-content {\n  display: -webkit-box;\n  display: -moz-box;\n  display: -webkit-flex;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-flex: 1;\n  -moz-box-flex: 1;\n  -webkit-flex: 1;\n  -ms-flex: 1;\n  flex: 1;\n}\n.dapp-content {\n  -webkit-box-flex: 1;\n  -moz-box-flex: 1;\n  -webkit-flex: 1;\n  -ms-flex: 1;\n  flex: 1;\n  background: #FAFAFA;\n}\n.dapp-content.dapp-has-header {\n  padding-top: 156.8px;\n}\n.dapp-content .dapp-content-header {\n  position: fixed;\n  top: 0;\n  width: 80%;\n  min-height: 36.8px;\n  padding: 12.26666667px 16px;\n  margin-left: -32px;\n  background: rgba(245, 244, 242, 0.8);\n  z-index: 10;\n  line-height: 36.8px;\n  -webkit-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);\n  -moz-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);\n  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);\n  -webkit-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  box-sizing: border-box;\n}\n.dapp-aside {\n  -webkit-box-flex: 0;\n  -moz-box-flex: 0;\n  -webkit-flex: 0 0 224px;\n  -ms-flex: 0 0 224px;\n  flex: 0 0 224px;\n  padding-right: 0;\n  background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB2aWV3Qm94PSIwIDAgMSAxIiBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIj48bGluZWFyR3JhZGllbnQgaWQ9Imxlc3NoYXQtZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPjxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNmMGVlZWUiIHN0b3Atb3BhY2l0eT0iMSIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI0NDQzZDNiIgc3RvcC1vcGFjaXR5PSIxIi8+PC9saW5lYXJHcmFkaWVudD48cmVjdCB4PSIwIiB5PSIwIiB3aWR0aD0iMSIgaGVpZ2h0PSIxIiBmaWxsPSJ1cmwoI2xlc3NoYXQtZ2VuZXJhdGVkKSIgLz48L3N2Zz4=);\n  background-image: -webkit-linear-gradient(top, #f0eeee 0, #CCC6C6 100px);\n  background-image: -moz-linear-gradient(top, #f0eeee 0, #CCC6C6 100px);\n  background-image: -o-linear-gradient(top, #f0eeee 0, #CCC6C6 100px);\n  background-image: linear-gradient(to bottom, #f0eeee 0, #CCC6C6 100px);\n  -webkit-transition: flex 400ms;\n  -moz-transition: flex 400ms;\n  -o-transition: flex 400ms;\n  transition: flex 400ms;\n}\n.dapp-aside nav ul {\n  padding: 0;\n  margin: 0;\n  list-style: none;\n  padding-top: 18.4px;\n}\n.dapp-aside nav ul li {\n  display: block;\n  padding: 0;\n  margin: 0;\n}\n.dapp-aside nav ul li a,\n.dapp-aside nav ul li a:visited,\n.dapp-aside nav ul li button {\n  display: -webkit-box;\n  display: -moz-box;\n  display: -webkit-flex;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-align: center;\n  -moz-box-align: center;\n  -webkit-align-items: center;\n  -ms-flex-align: center;\n  align-items: center;\n  position: relative;\n  min-height: 73.6px;\n  max-height: 92px;\n  padding: 12.26666667px 32px;\n  padding-left: 10.66666667px;\n  overflow: hidden;\n  border-top: #b9b0b0 solid 1px;\n  -webkit-background-clip: padding-box;\n  -moz-background-clip: padding;\n  background-clip: padding-box;\n  -webkit-border-radius: 3px 0 0 3px;\n  -moz-border-radius: 3px 0 0 3px;\n  border-radius: 3px 0 0 3px;\n  -webkit-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  box-sizing: border-box;\n  color: #111;\n  font-weight: 300;\n  line-height: 20px;\n}\n.dapp-aside nav ul li a:active,\n.dapp-aside nav ul li a:visited:active,\n.dapp-aside nav ul li button:active {\n  -webkit-transform-origin: 100% 50%;\n  -moz-transform-origin: 100% 50%;\n  -o-transform-origin: 100% 50%;\n  -ms-transform-origin: 100% 50%;\n  transform-origin: 100% 50%;\n  -webkit-transform: scale(0.98);\n  -moz-transform: scale(0.98);\n  -o-transform: scale(0.98);\n  -ms-transform: scale(0.98);\n  transform: scale(0.98);\n}\n.dapp-aside nav ul li a > i,\n.dapp-aside nav ul li a:visited > i,\n.dapp-aside nav ul li button > i {\n  margin-right: 4px;\n}\n.dapp-aside nav ul li a > span,\n.dapp-aside nav ul li a:visited > span,\n.dapp-aside nav ul li button > span {\n  max-width: 115px;\n  display: -webkit-box;\n  -webkit-line-clamp: 3;\n  -webkit-box-orient: vertical;\n  overflow: hidden;\n  text-overflow: ellipsis;\n}\n.dapp-aside nav ul li .dapp-main-button {\n  position: relative;\n  width: 100%;\n  margin-bottom: 73.6px;\n  -webkit-background-clip: padding-box;\n  -moz-background-clip: padding;\n  background-clip: padding-box;\n  -webkit-border-radius: 3px 0 0 3px;\n  -moz-border-radius: 3px 0 0 3px;\n  border-radius: 3px 0 0 3px;\n  background: #665F5F;\n  color: #FAFAFA;\n  border-top: none;\n}\n.dapp-aside nav ul li .dapp-main-button i {\n  position: absolute;\n  right: 8px;\n  top: 27.6px;\n}\n.dapp-aside nav ul li.active a {\n  background: #FAFAFA;\n  border-top: none;\n  color: #111;\n  font-weight: 500;\n}\n.dapp-aside nav ul li:first-child a,\n.dapp-aside nav ul li.active + li > a,\n.dapp-aside nav ul li.dapp-main-button + li {\n  border-top: 0;\n}\n.dapp-actionbar {\n  z-index: 20;\n  -webkit-box-flex: 0;\n  -moz-box-flex: 0;\n  -webkit-flex: 0 0 64px;\n  -ms-flex: 0 0 64px;\n  flex: 0 0 64px;\n  background: #FAFAFA;\n}\n.dapp-actionbar nav ul {\n  padding: 0;\n  margin: 0;\n  list-style: none;\n}\n.dapp-actionbar nav ul li {\n  display: block;\n  padding: 0;\n  margin: 0;\n}\n.dapp-actionbar nav ul li {\n  margin: 16px 0;\n  color: #6691C2;\n  position: relative;\n  overflow: hidden;\n  text-align: center;\n  -webkit-transition: height 400ms;\n  -moz-transition: height 400ms;\n  -o-transition: height 400ms;\n  transition: height 400ms;\n}\n.dapp-actionbar nav ul li button,\n.dapp-actionbar nav ul li a,\n.dapp-actionbar nav ul li a:visited {\n  background: none;\n  border: 0;\n  padding: 0;\n  margin: 0;\n  -webkit-box-sizing: content-box;\n  -moz-box-sizing: content-box;\n  box-sizing: content-box;\n  display: inline-block;\n  color: #111;\n  color: #0e73b8;\n  font-size: 0.8em;\n  font-weight: 400;\n}\n.dapp-actionbar nav ul li button:hover,\n.dapp-actionbar nav ul li a:hover,\n.dapp-actionbar nav ul li a:visited:hover,\n.dapp-actionbar nav ul li button:focus,\n.dapp-actionbar nav ul li a:focus,\n.dapp-actionbar nav ul li a:visited:focus {\n  outline: 0;\n}\n.dapp-actionbar nav ul li button:active,\n.dapp-actionbar nav ul li a:active,\n.dapp-actionbar nav ul li a:visited:active {\n  -webkit-transform: scale(0.95);\n  -moz-transform: scale(0.95);\n  -o-transform: scale(0.95);\n  -ms-transform: scale(0.95);\n  transform: scale(0.95);\n}\n.dapp-actionbar nav ul li button:hover,\n.dapp-actionbar nav ul li a:hover,\n.dapp-actionbar nav ul li a:visited:hover {\n  opacity: 0.9;\n}\n.dapp-actionbar nav ul li button i,\n.dapp-actionbar nav ul li a i,\n.dapp-actionbar nav ul li a:visited i {\n  font-size: 2em;\n  display: block;\n}\n.dapp-box {\n  display: inline-block;\n  float: left;\n  width: 192px;\n  height: 220.8px;\n  padding-top: 18.4px;\n  padding-left: 16px;\n  padding-bottom: 9.2px;\n  padding-right: 16px;\n  margin-bottom: 9.2px;\n  margin-right: 16px;\n  background-color: #FAFAFA;\n  -webkit-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);\n  -moz-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);\n  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);\n}\n.dapp-box h2 {\n  margin: 0;\n  padding: 0;\n  background-color: transparent;\n  color: #827a7a;\n  font-family: 'Source Sans Pro', 'Helvetica Neue', Helvetica, Arial, Sans;\n  text-transform: none;\n  font-size: 1.5em;\n  font-weight: 100;\n}\n.dapp-modal-overlay {\n  background: rgba(0, 0, 0, 0);\n}\n.dapp-modal-container {\n  background: #FAFAFA;\n}\n.dapp-icon-button {\n  background: none;\n  border: 0;\n  padding: 0;\n  margin: 0;\n  -webkit-box-sizing: content-box;\n  -moz-box-sizing: content-box;\n  box-sizing: content-box;\n  display: inline-block;\n  color: #111;\n}\n.dapp-icon-button:hover,\n.dapp-icon-button:focus {\n  outline: 0;\n}\n.dapp-icon-button:active {\n  -webkit-transform: scale(0.95);\n  -moz-transform: scale(0.95);\n  -o-transform: scale(0.95);\n  -ms-transform: scale(0.95);\n  transform: scale(0.95);\n}\n.dapp-icon-button:hover {\n  opacity: 0.9;\n}\n.dapp-block-button,\n.dapp-block-button:visited {\n  background: none;\n  border: 0;\n  padding: 0;\n  margin: 0;\n  -webkit-box-sizing: content-box;\n  -moz-box-sizing: content-box;\n  box-sizing: content-box;\n  height: 36.8px;\n  min-width: 100px;\n  padding: 4.6px 10.66666667px;\n  background: #6691C2;\n  color: #FAFAFA;\n  border-bottom: 3px solid #5484bb;\n  -webkit-background-clip: padding-box;\n  -moz-background-clip: padding;\n  background-clip: padding-box;\n  -webkit-border-radius: 2px;\n  -moz-border-radius: 2px;\n  border-radius: 2px;\n  display: inline-block;\n  -o-text-overflow: ellipsis;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n  max-width: 100%;\n  font-family: 'Source Sans Pro', 'Helvetica Neue', Helvetica, Arial, Sans;\n  font-size: 1em;\n  font-weight: 400;\n  text-transform: uppercase;\n}\n.dapp-block-button:hover,\n.dapp-block-button:visited:hover,\n.dapp-block-button:focus,\n.dapp-block-button:visited:focus {\n  outline: 0;\n}\n.dapp-block-button:focus,\n.dapp-block-button:visited:focus {\n  border-bottom: 3px solid #5484bb;\n  zoom: 1;\n  filter: alpha(opacity=80);\n  -webkit-opacity: 0.8;\n  -moz-opacity: 0.8;\n  opacity: 0.8;\n}\n.dapp-block-button:active,\n.dapp-block-button:visited:active {\n  border-bottom-width: 3px;\n}\n.dapp-block-button i,\n.dapp-block-button:visited i {\n  position: relative;\n  top: 2px;\n}\n.dapp-tag-button {\n  background: none;\n  border: 0;\n  padding: 0;\n  margin: 0;\n  -webkit-box-sizing: content-box;\n  -moz-box-sizing: content-box;\n  box-sizing: content-box;\n  padding: 4.6px 8px;\n  background: #CCC6C6;\n  color: #111;\n  -webkit-background-clip: padding-box;\n  -moz-background-clip: padding;\n  background-clip: padding-box;\n  -webkit-border-radius: 4px;\n  -moz-border-radius: 4px;\n  border-radius: 4px;\n  display: inline-block;\n  -o-text-overflow: ellipsis;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n  max-width: 100%;\n  font-size: 0.7em;\n}\n.dapp-tag-button:hover,\n.dapp-tag-button:focus {\n  outline: 0;\n}\n.dapp-tag-button.active {\n  background: #6691C2;\n  color: #FAFAFA;\n}\n/* #### All small screens #### */\n/* #### All small tablets screens #### */\n/* #### All small phone screens landscape #### */\n@media screen and (max-width: 576px) {\n  aside.dapp-main {\n    -webkit-box-flex: 0;\n    -moz-box-flex: 0;\n    -webkit-flex: 0 0 64px;\n    -ms-flex: 0 0 64px;\n    flex: 0 0 64px;\n  }\n  .dapp-actionbar {\n    flex: 1 auto;\n  }\n  .dapp-actionbar nav ul {\n    display: flex;\n  }\n  .dapp-actionbar nav ul li {\n    flex: 1;\n  }\n}\n/* #### All small phone screens porttrait #### */\n/* #### Mobile Phones Portrait #### */\n@media screen and (max-device-width: 480px) and (orientation: portrait) {\n  body {\n    font-size: 14px;\n  }\n}\n/* #### Mobile Phones Landscape #### */\n@media screen and (max-device-width: 640px) and (orientation: landscape) {\n  body {\n    font-size: 15px;\n  }\n}\n/* #### Mobile Phones Portrait or Landscape #### */\n/* #### iPhone 4+ Portrait or Landscape #### */\n/* #### Tablets Portrait #### */\n/* #### Tablets Landscape #### */\n/* #### Desktops #### */\n", ""]);
+	exports.push([module.id, "body {\n\tfont: 100% \"Trebuchet MS\", sans-serif;\n\tmargin: 1em;\n}\n\ndiv#app {\n}\n\nimg._accountIcon {\n\tborder-radius: 50%;\n}\n\nspan._hash {\n\tfont-family: monospace;\n\tfont-size: large;\n}\n\ndiv#drop_zone {\n  border: 2px dashed #bbb;\n  -moz-border-radius: 5px;\n  -webkit-border-radius: 5px;\n  border-radius: 5px;\n  padding: 25px;\n  text-align: center;\n  font: 150% bold;\n  color: #bbb;\n}\n", ""]);
 
 	// exports
 
@@ -34524,18 +34593,7 @@
 
 
 /***/ }),
-/* 345 */,
-/* 346 */,
-/* 347 */,
-/* 348 */,
-/* 349 */,
-/* 350 */,
-/* 351 */,
-/* 352 */,
-/* 353 */,
-/* 354 */,
-/* 355 */,
-/* 356 */
+/* 345 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/*
@@ -34787,7 +34845,7 @@
 
 
 /***/ }),
-/* 357 */
+/* 346 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -34803,11 +34861,11 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _TextField = __webpack_require__(358);
+	var _TextField = __webpack_require__(347);
 
 	var _TextField2 = _interopRequireDefault(_TextField);
 
-	var _RaisedButton = __webpack_require__(378);
+	var _RaisedButton = __webpack_require__(367);
 
 	var _RaisedButton2 = _interopRequireDefault(_RaisedButton);
 
@@ -35210,7 +35268,7 @@
 	};
 
 /***/ }),
-/* 358 */
+/* 347 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -35220,7 +35278,7 @@
 	});
 	exports.default = undefined;
 
-	var _TextField = __webpack_require__(359);
+	var _TextField = __webpack_require__(348);
 
 	var _TextField2 = _interopRequireDefault(_TextField);
 
@@ -35229,7 +35287,7 @@
 	exports.default = _TextField2.default;
 
 /***/ }),
-/* 359 */
+/* 348 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -35238,11 +35296,11 @@
 	  value: true
 	});
 
-	var _extends2 = __webpack_require__(360);
+	var _extends2 = __webpack_require__(349);
 
 	var _extends3 = _interopRequireDefault(_extends2);
 
-	var _objectWithoutProperties2 = __webpack_require__(365);
+	var _objectWithoutProperties2 = __webpack_require__(354);
 
 	var _objectWithoutProperties3 = _interopRequireDefault(_objectWithoutProperties2);
 
@@ -35266,7 +35324,7 @@
 
 	var _inherits3 = _interopRequireDefault(_inherits2);
 
-	var _simpleAssign = __webpack_require__(366);
+	var _simpleAssign = __webpack_require__(355);
 
 	var _simpleAssign2 = _interopRequireDefault(_simpleAssign);
 
@@ -35278,27 +35336,27 @@
 
 	var _reactDom2 = _interopRequireDefault(_reactDom);
 
-	var _shallowEqual = __webpack_require__(367);
+	var _shallowEqual = __webpack_require__(356);
 
 	var _shallowEqual2 = _interopRequireDefault(_shallowEqual);
 
-	var _transitions = __webpack_require__(368);
+	var _transitions = __webpack_require__(357);
 
 	var _transitions2 = _interopRequireDefault(_transitions);
 
-	var _EnhancedTextarea = __webpack_require__(369);
+	var _EnhancedTextarea = __webpack_require__(358);
 
 	var _EnhancedTextarea2 = _interopRequireDefault(_EnhancedTextarea);
 
-	var _TextFieldHint = __webpack_require__(375);
+	var _TextFieldHint = __webpack_require__(364);
 
 	var _TextFieldHint2 = _interopRequireDefault(_TextFieldHint);
 
-	var _TextFieldLabel = __webpack_require__(376);
+	var _TextFieldLabel = __webpack_require__(365);
 
 	var _TextFieldLabel2 = _interopRequireDefault(_TextFieldLabel);
 
-	var _TextFieldUnderline = __webpack_require__(377);
+	var _TextFieldUnderline = __webpack_require__(366);
 
 	var _TextFieldUnderline2 = _interopRequireDefault(_TextFieldUnderline);
 
@@ -35810,14 +35868,14 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ }),
-/* 360 */
+/* 349 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
 
 	exports.__esModule = true;
 
-	var _assign = __webpack_require__(361);
+	var _assign = __webpack_require__(350);
 
 	var _assign2 = _interopRequireDefault(_assign);
 
@@ -35838,29 +35896,29 @@
 	};
 
 /***/ }),
-/* 361 */
+/* 350 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	module.exports = { "default": __webpack_require__(362), __esModule: true };
+	module.exports = { "default": __webpack_require__(351), __esModule: true };
 
 /***/ }),
-/* 362 */
+/* 351 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	__webpack_require__(363);
+	__webpack_require__(352);
 	module.exports = __webpack_require__(202).Object.assign;
 
 /***/ }),
-/* 363 */
+/* 352 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	// 19.1.3.1 Object.assign(target, source)
 	var $export = __webpack_require__(201);
 
-	$export($export.S + $export.F, 'Object', {assign: __webpack_require__(364)});
+	$export($export.S + $export.F, 'Object', {assign: __webpack_require__(353)});
 
 /***/ }),
-/* 364 */
+/* 353 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -35898,7 +35956,7 @@
 	} : $assign;
 
 /***/ }),
-/* 365 */
+/* 354 */
 /***/ (function(module, exports) {
 
 	"use strict";
@@ -35918,7 +35976,7 @@
 	};
 
 /***/ }),
-/* 366 */
+/* 355 */
 /***/ (function(module, exports) {
 
 	module.exports = function (target) {
@@ -35935,7 +35993,7 @@
 
 
 /***/ }),
-/* 367 */
+/* 356 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -35951,7 +36009,7 @@
 	exports.default = _shallowEqual2.default;
 
 /***/ }),
-/* 368 */
+/* 357 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -35990,7 +36048,7 @@
 	};
 
 /***/ }),
-/* 369 */
+/* 358 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -35999,11 +36057,11 @@
 	  value: true
 	});
 
-	var _extends2 = __webpack_require__(360);
+	var _extends2 = __webpack_require__(349);
 
 	var _extends3 = _interopRequireDefault(_extends2);
 
-	var _objectWithoutProperties2 = __webpack_require__(365);
+	var _objectWithoutProperties2 = __webpack_require__(354);
 
 	var _objectWithoutProperties3 = _interopRequireDefault(_objectWithoutProperties2);
 
@@ -36027,7 +36085,7 @@
 
 	var _inherits3 = _interopRequireDefault(_inherits2);
 
-	var _simpleAssign = __webpack_require__(366);
+	var _simpleAssign = __webpack_require__(355);
 
 	var _simpleAssign2 = _interopRequireDefault(_simpleAssign);
 
@@ -36035,7 +36093,7 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _reactEventListener = __webpack_require__(370);
+	var _reactEventListener = __webpack_require__(359);
 
 	var _reactEventListener2 = _interopRequireDefault(_reactEventListener);
 
@@ -36236,7 +36294,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ }),
-/* 370 */
+/* 359 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -36273,11 +36331,11 @@
 
 	var _keys2 = _interopRequireDefault(_keys);
 
-	var _objectWithoutProperties2 = __webpack_require__(365);
+	var _objectWithoutProperties2 = __webpack_require__(354);
 
 	var _objectWithoutProperties3 = _interopRequireDefault(_objectWithoutProperties2);
 
-	var _assign = __webpack_require__(361);
+	var _assign = __webpack_require__(350);
 
 	var _assign2 = _interopRequireDefault(_assign);
 
@@ -36287,7 +36345,7 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _propTypes = __webpack_require__(371);
+	var _propTypes = __webpack_require__(360);
 
 	var _propTypes2 = _interopRequireDefault(_propTypes);
 
@@ -36299,7 +36357,7 @@
 
 	var _warning2 = _interopRequireDefault(_warning);
 
-	var _supports = __webpack_require__(373);
+	var _supports = __webpack_require__(362);
 
 	var supports = _interopRequireWildcard(_supports);
 
@@ -36466,7 +36524,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ }),
-/* 371 */
+/* 360 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -36497,13 +36555,13 @@
 	} else {
 	  // By explicitly using `prop-types` you are opting into new production behavior.
 	  // http://fb.me/prop-types-in-prod
-	  module.exports = __webpack_require__(372)();
+	  module.exports = __webpack_require__(361)();
 	}
 
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ }),
-/* 372 */
+/* 361 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/**
@@ -36563,7 +36621,7 @@
 
 
 /***/ }),
-/* 373 */
+/* 362 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -36573,7 +36631,7 @@
 	});
 	exports.passiveOption = exports.detachEvent = exports.attachEvent = exports.removeEventListener = exports.addEventListener = exports.canUseDOM = undefined;
 
-	var _defineProperty = __webpack_require__(374);
+	var _defineProperty = __webpack_require__(363);
 
 	var _defineProperty2 = _interopRequireDefault(_defineProperty);
 
@@ -36616,7 +36674,7 @@
 	}();
 
 /***/ }),
-/* 374 */
+/* 363 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -36640,7 +36698,7 @@
 	}
 
 /***/ }),
-/* 375 */
+/* 364 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -36649,7 +36707,7 @@
 	  value: true
 	});
 
-	var _simpleAssign = __webpack_require__(366);
+	var _simpleAssign = __webpack_require__(355);
 
 	var _simpleAssign2 = _interopRequireDefault(_simpleAssign);
 
@@ -36657,7 +36715,7 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _transitions = __webpack_require__(368);
+	var _transitions = __webpack_require__(357);
 
 	var _transitions2 = _interopRequireDefault(_transitions);
 
@@ -36722,7 +36780,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ }),
-/* 376 */
+/* 365 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -36731,7 +36789,7 @@
 	  value: true
 	});
 
-	var _simpleAssign = __webpack_require__(366);
+	var _simpleAssign = __webpack_require__(355);
 
 	var _simpleAssign2 = _interopRequireDefault(_simpleAssign);
 
@@ -36739,7 +36797,7 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _transitions = __webpack_require__(368);
+	var _transitions = __webpack_require__(357);
 
 	var _transitions2 = _interopRequireDefault(_transitions);
 
@@ -36841,7 +36899,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ }),
-/* 377 */
+/* 366 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -36850,7 +36908,7 @@
 	  value: true
 	});
 
-	var _simpleAssign = __webpack_require__(366);
+	var _simpleAssign = __webpack_require__(355);
 
 	var _simpleAssign2 = _interopRequireDefault(_simpleAssign);
 
@@ -36858,7 +36916,7 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _transitions = __webpack_require__(368);
+	var _transitions = __webpack_require__(357);
 
 	var _transitions2 = _interopRequireDefault(_transitions);
 
@@ -36979,7 +37037,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ }),
-/* 378 */
+/* 367 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -36989,7 +37047,7 @@
 	});
 	exports.default = undefined;
 
-	var _RaisedButton = __webpack_require__(379);
+	var _RaisedButton = __webpack_require__(368);
 
 	var _RaisedButton2 = _interopRequireDefault(_RaisedButton);
 
@@ -36998,7 +37056,7 @@
 	exports.default = _RaisedButton2.default;
 
 /***/ }),
-/* 379 */
+/* 368 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -37007,11 +37065,11 @@
 	  value: true
 	});
 
-	var _extends2 = __webpack_require__(360);
+	var _extends2 = __webpack_require__(349);
 
 	var _extends3 = _interopRequireDefault(_extends2);
 
-	var _objectWithoutProperties2 = __webpack_require__(365);
+	var _objectWithoutProperties2 = __webpack_require__(354);
 
 	var _objectWithoutProperties3 = _interopRequireDefault(_objectWithoutProperties2);
 
@@ -37035,7 +37093,7 @@
 
 	var _inherits3 = _interopRequireDefault(_inherits2);
 
-	var _simpleAssign = __webpack_require__(366);
+	var _simpleAssign = __webpack_require__(355);
 
 	var _simpleAssign2 = _interopRequireDefault(_simpleAssign);
 
@@ -37043,19 +37101,19 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _transitions = __webpack_require__(368);
+	var _transitions = __webpack_require__(357);
 
 	var _transitions2 = _interopRequireDefault(_transitions);
 
 	var _colorManipulator = __webpack_require__(288);
 
-	var _childUtils = __webpack_require__(380);
+	var _childUtils = __webpack_require__(369);
 
-	var _EnhancedButton = __webpack_require__(382);
+	var _EnhancedButton = __webpack_require__(371);
 
 	var _EnhancedButton2 = _interopRequireDefault(_EnhancedButton);
 
-	var _Paper = __webpack_require__(397);
+	var _Paper = __webpack_require__(386);
 
 	var _Paper2 = _interopRequireDefault(_Paper);
 
@@ -37478,7 +37536,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ }),
-/* 380 */
+/* 369 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -37493,7 +37551,7 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _reactAddonsCreateFragment = __webpack_require__(381);
+	var _reactAddonsCreateFragment = __webpack_require__(370);
 
 	var _reactAddonsCreateFragment2 = _interopRequireDefault(_reactAddonsCreateFragment);
 
@@ -37535,7 +37593,7 @@
 	}
 
 /***/ }),
-/* 381 */
+/* 370 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -37892,7 +37950,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ }),
-/* 382 */
+/* 371 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -37901,11 +37959,11 @@
 	  value: true
 	});
 
-	var _extends2 = __webpack_require__(360);
+	var _extends2 = __webpack_require__(349);
 
 	var _extends3 = _interopRequireDefault(_extends2);
 
-	var _objectWithoutProperties2 = __webpack_require__(365);
+	var _objectWithoutProperties2 = __webpack_require__(354);
 
 	var _objectWithoutProperties3 = _interopRequireDefault(_objectWithoutProperties2);
 
@@ -37929,7 +37987,7 @@
 
 	var _inherits3 = _interopRequireDefault(_inherits2);
 
-	var _simpleAssign = __webpack_require__(366);
+	var _simpleAssign = __webpack_require__(355);
 
 	var _simpleAssign2 = _interopRequireDefault(_simpleAssign);
 
@@ -37937,21 +37995,21 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _childUtils = __webpack_require__(380);
+	var _childUtils = __webpack_require__(369);
 
-	var _events = __webpack_require__(383);
+	var _events = __webpack_require__(372);
 
 	var _events2 = _interopRequireDefault(_events);
 
-	var _keycode = __webpack_require__(384);
+	var _keycode = __webpack_require__(373);
 
 	var _keycode2 = _interopRequireDefault(_keycode);
 
-	var _FocusRipple = __webpack_require__(385);
+	var _FocusRipple = __webpack_require__(374);
 
 	var _FocusRipple2 = _interopRequireDefault(_FocusRipple);
 
-	var _TouchRipple = __webpack_require__(393);
+	var _TouchRipple = __webpack_require__(382);
 
 	var _TouchRipple2 = _interopRequireDefault(_TouchRipple);
 
@@ -38294,7 +38352,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ }),
-/* 383 */
+/* 372 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -38338,7 +38396,7 @@
 	};
 
 /***/ }),
-/* 384 */
+/* 373 */
 /***/ (function(module, exports) {
 
 	// Source: http://jsfiddle.net/vWx8V/
@@ -38490,7 +38548,7 @@
 
 
 /***/ }),
-/* 385 */
+/* 374 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -38519,7 +38577,7 @@
 
 	var _inherits3 = _interopRequireDefault(_inherits2);
 
-	var _simpleAssign = __webpack_require__(366);
+	var _simpleAssign = __webpack_require__(355);
 
 	var _simpleAssign2 = _interopRequireDefault(_simpleAssign);
 
@@ -38531,19 +38589,19 @@
 
 	var _reactDom2 = _interopRequireDefault(_reactDom);
 
-	var _shallowEqual = __webpack_require__(367);
+	var _shallowEqual = __webpack_require__(356);
 
 	var _shallowEqual2 = _interopRequireDefault(_shallowEqual);
 
-	var _autoPrefix = __webpack_require__(386);
+	var _autoPrefix = __webpack_require__(375);
 
 	var _autoPrefix2 = _interopRequireDefault(_autoPrefix);
 
-	var _transitions = __webpack_require__(368);
+	var _transitions = __webpack_require__(357);
 
 	var _transitions2 = _interopRequireDefault(_transitions);
 
-	var _ScaleIn = __webpack_require__(387);
+	var _ScaleIn = __webpack_require__(376);
 
 	var _ScaleIn2 = _interopRequireDefault(_ScaleIn);
 
@@ -38691,7 +38749,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ }),
-/* 386 */
+/* 375 */
 /***/ (function(module, exports) {
 
 	"use strict";
@@ -38706,7 +38764,7 @@
 	};
 
 /***/ }),
-/* 387 */
+/* 376 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -38715,11 +38773,11 @@
 	  value: true
 	});
 
-	var _extends2 = __webpack_require__(360);
+	var _extends2 = __webpack_require__(349);
 
 	var _extends3 = _interopRequireDefault(_extends2);
 
-	var _objectWithoutProperties2 = __webpack_require__(365);
+	var _objectWithoutProperties2 = __webpack_require__(354);
 
 	var _objectWithoutProperties3 = _interopRequireDefault(_objectWithoutProperties2);
 
@@ -38743,7 +38801,7 @@
 
 	var _inherits3 = _interopRequireDefault(_inherits2);
 
-	var _simpleAssign = __webpack_require__(366);
+	var _simpleAssign = __webpack_require__(355);
 
 	var _simpleAssign2 = _interopRequireDefault(_simpleAssign);
 
@@ -38751,11 +38809,11 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _reactAddonsTransitionGroup = __webpack_require__(388);
+	var _reactAddonsTransitionGroup = __webpack_require__(377);
 
 	var _reactAddonsTransitionGroup2 = _interopRequireDefault(_reactAddonsTransitionGroup);
 
-	var _ScaleInChild = __webpack_require__(392);
+	var _ScaleInChild = __webpack_require__(381);
 
 	var _ScaleInChild2 = _interopRequireDefault(_ScaleInChild);
 
@@ -38837,13 +38895,13 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ }),
-/* 388 */
+/* 377 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(389);
+	module.exports = __webpack_require__(378);
 
 /***/ }),
-/* 389 */
+/* 378 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/**
@@ -38867,7 +38925,7 @@
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 	var React = __webpack_require__(2);
-	var ReactTransitionChildMapping = __webpack_require__(390);
+	var ReactTransitionChildMapping = __webpack_require__(379);
 
 	var propTypesFactory = __webpack_require__(30);
 	var PropTypes = propTypesFactory(React.isValidElement);
@@ -39079,7 +39137,7 @@
 	module.exports = ReactTransitionGroup;
 
 /***/ }),
-/* 390 */
+/* 379 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -39094,7 +39152,7 @@
 
 	'use strict';
 
-	var flattenChildren = __webpack_require__(391);
+	var flattenChildren = __webpack_require__(380);
 
 	var ReactTransitionChildMapping = {
 	  /**
@@ -39187,7 +39245,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ }),
-/* 391 */
+/* 380 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -39268,7 +39326,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ }),
-/* 392 */
+/* 381 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -39277,11 +39335,11 @@
 	  value: true
 	});
 
-	var _extends2 = __webpack_require__(360);
+	var _extends2 = __webpack_require__(349);
 
 	var _extends3 = _interopRequireDefault(_extends2);
 
-	var _objectWithoutProperties2 = __webpack_require__(365);
+	var _objectWithoutProperties2 = __webpack_require__(354);
 
 	var _objectWithoutProperties3 = _interopRequireDefault(_objectWithoutProperties2);
 
@@ -39305,7 +39363,7 @@
 
 	var _inherits3 = _interopRequireDefault(_inherits2);
 
-	var _simpleAssign = __webpack_require__(366);
+	var _simpleAssign = __webpack_require__(355);
 
 	var _simpleAssign2 = _interopRequireDefault(_simpleAssign);
 
@@ -39317,11 +39375,11 @@
 
 	var _reactDom2 = _interopRequireDefault(_reactDom);
 
-	var _autoPrefix = __webpack_require__(386);
+	var _autoPrefix = __webpack_require__(375);
 
 	var _autoPrefix2 = _interopRequireDefault(_autoPrefix);
 
-	var _transitions = __webpack_require__(368);
+	var _transitions = __webpack_require__(357);
 
 	var _transitions2 = _interopRequireDefault(_transitions);
 
@@ -39440,7 +39498,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ }),
-/* 393 */
+/* 382 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -39473,11 +39531,11 @@
 
 	var _inherits3 = _interopRequireDefault(_inherits2);
 
-	var _toArray2 = __webpack_require__(394);
+	var _toArray2 = __webpack_require__(383);
 
 	var _toArray3 = _interopRequireDefault(_toArray2);
 
-	var _simpleAssign = __webpack_require__(366);
+	var _simpleAssign = __webpack_require__(355);
 
 	var _simpleAssign2 = _interopRequireDefault(_simpleAssign);
 
@@ -39489,15 +39547,15 @@
 
 	var _reactDom2 = _interopRequireDefault(_reactDom);
 
-	var _reactAddonsTransitionGroup = __webpack_require__(388);
+	var _reactAddonsTransitionGroup = __webpack_require__(377);
 
 	var _reactAddonsTransitionGroup2 = _interopRequireDefault(_reactAddonsTransitionGroup);
 
-	var _dom = __webpack_require__(395);
+	var _dom = __webpack_require__(384);
 
 	var _dom2 = _interopRequireDefault(_dom);
 
-	var _CircleRipple = __webpack_require__(396);
+	var _CircleRipple = __webpack_require__(385);
 
 	var _CircleRipple2 = _interopRequireDefault(_CircleRipple);
 
@@ -39752,7 +39810,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ }),
-/* 394 */
+/* 383 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -39770,7 +39828,7 @@
 	};
 
 /***/ }),
-/* 395 */
+/* 384 */
 /***/ (function(module, exports) {
 
 	"use strict";
@@ -39799,7 +39857,7 @@
 	};
 
 /***/ }),
-/* 396 */
+/* 385 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -39808,11 +39866,11 @@
 	  value: true
 	});
 
-	var _extends2 = __webpack_require__(360);
+	var _extends2 = __webpack_require__(349);
 
 	var _extends3 = _interopRequireDefault(_extends2);
 
-	var _objectWithoutProperties2 = __webpack_require__(365);
+	var _objectWithoutProperties2 = __webpack_require__(354);
 
 	var _objectWithoutProperties3 = _interopRequireDefault(_objectWithoutProperties2);
 
@@ -39836,7 +39894,7 @@
 
 	var _inherits3 = _interopRequireDefault(_inherits2);
 
-	var _simpleAssign = __webpack_require__(366);
+	var _simpleAssign = __webpack_require__(355);
 
 	var _simpleAssign2 = _interopRequireDefault(_simpleAssign);
 
@@ -39848,15 +39906,15 @@
 
 	var _reactDom2 = _interopRequireDefault(_reactDom);
 
-	var _shallowEqual = __webpack_require__(367);
+	var _shallowEqual = __webpack_require__(356);
 
 	var _shallowEqual2 = _interopRequireDefault(_shallowEqual);
 
-	var _autoPrefix = __webpack_require__(386);
+	var _autoPrefix = __webpack_require__(375);
 
 	var _autoPrefix2 = _interopRequireDefault(_autoPrefix);
 
-	var _transitions = __webpack_require__(368);
+	var _transitions = __webpack_require__(357);
 
 	var _transitions2 = _interopRequireDefault(_transitions);
 
@@ -39973,7 +40031,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ }),
-/* 397 */
+/* 386 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -39983,7 +40041,7 @@
 	});
 	exports.default = undefined;
 
-	var _Paper = __webpack_require__(398);
+	var _Paper = __webpack_require__(387);
 
 	var _Paper2 = _interopRequireDefault(_Paper);
 
@@ -39992,7 +40050,7 @@
 	exports.default = _Paper2.default;
 
 /***/ }),
-/* 398 */
+/* 387 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -40001,11 +40059,11 @@
 	  value: true
 	});
 
-	var _extends2 = __webpack_require__(360);
+	var _extends2 = __webpack_require__(349);
 
 	var _extends3 = _interopRequireDefault(_extends2);
 
-	var _objectWithoutProperties2 = __webpack_require__(365);
+	var _objectWithoutProperties2 = __webpack_require__(354);
 
 	var _objectWithoutProperties3 = _interopRequireDefault(_objectWithoutProperties2);
 
@@ -40029,7 +40087,7 @@
 
 	var _inherits3 = _interopRequireDefault(_inherits2);
 
-	var _simpleAssign = __webpack_require__(366);
+	var _simpleAssign = __webpack_require__(355);
 
 	var _simpleAssign2 = _interopRequireDefault(_simpleAssign);
 
@@ -40037,11 +40095,11 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _propTypes = __webpack_require__(399);
+	var _propTypes = __webpack_require__(388);
 
 	var _propTypes2 = _interopRequireDefault(_propTypes);
 
-	var _transitions = __webpack_require__(368);
+	var _transitions = __webpack_require__(357);
 
 	var _transitions2 = _interopRequireDefault(_transitions);
 
@@ -40144,7 +40202,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ }),
-/* 399 */
+/* 388 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -40180,7 +40238,7 @@
 	};
 
 /***/ }),
-/* 400 */
+/* 389 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -40198,11 +40256,11 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _bignumber = __webpack_require__(401);
+	var _bignumber = __webpack_require__(390);
 
 	var _bignumber2 = _interopRequireDefault(_bignumber);
 
-	var _blockies = __webpack_require__(402);
+	var _blockies = __webpack_require__(391);
 
 	var _blockies2 = _interopRequireDefault(_blockies);
 
@@ -40210,9 +40268,9 @@
 
 	var _oo7Parity = __webpack_require__(338);
 
-	var _oo7React = __webpack_require__(357);
+	var _oo7React = __webpack_require__(346);
 
-	var _TransactionProgressBadge = __webpack_require__(403);
+	var _TransactionProgressBadge = __webpack_require__(392);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -40548,7 +40606,7 @@
 	exports.TransactionProgressBadge = _TransactionProgressBadge.TransactionProgressBadge;
 
 /***/ }),
-/* 401 */
+/* 390 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/*! bignumber.js v4.0.2 https://github.com/MikeMcl/bignumber.js/LICENCE */
@@ -43288,13 +43346,13 @@
 
 
 /***/ }),
-/* 402 */
+/* 391 */
 /***/ (function(module, exports) {
 
 	module.exports=function(){function r(r){for(var t=0;t<l.length;t++)l[t]=0;for(var t=0;t<r.length;t++)l[t%4]=(l[t%4]<<5)-l[t%4]+r.charCodeAt(t)}function t(){var r=l[0]^l[0]<<11;return l[0]=l[1],l[1]=l[2],l[2]=l[3],l[3]=l[3]^l[3]>>19^r^r>>8,(l[3]>>>0)/(1<<31>>>0)}function e(){var r=Math.floor(360*t()),e=60*t()+40+"%",o=25*(t()+t()+t()+t())+"%",n="hsl("+r+","+e+","+o+")";return n}function o(r){for(var e=r,o=r,n=Math.ceil(e/2),a=e-n,l=[],f=0;o>f;f++){for(var h=[],c=0;n>c;c++)h[c]=Math.floor(2.3*t());var i=h.slice(0,a);i.reverse(),h=h.concat(i);for(var v=0;v<h.length;v++)l.push(h[v])}return l}function n(r,t,e,o,n){var a=document.createElement("canvas"),l=Math.sqrt(r.length);a.width=a.height=l*e;var f=a.getContext("2d");f.fillStyle=o,f.fillRect(0,0,a.width,a.height),f.fillStyle=t;for(var h=0;h<r.length;h++){var c=Math.floor(h/l),i=h%l;f.fillStyle=1==r[h]?t:n,r[h]&&f.fillRect(i*e,c*e,e,e)}return a}function a(t){t=t||{};var a=t.size||8,l=t.scale||4,f=t.seed||Math.floor(Math.random()*Math.pow(10,16)).toString(16);r(f);var h=t.color||e(),c=t.bgcolor||e(),i=t.spotcolor||e(),v=o(a),u=n(v,h,l,c,i);return u}var l=Array(4);return a}();
 
 /***/ }),
-/* 403 */
+/* 392 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -43310,9 +43368,9 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _oo7React = __webpack_require__(357);
+	var _oo7React = __webpack_require__(346);
 
-	var _TransactionProgressBadgeStyles = __webpack_require__(404);
+	var _TransactionProgressBadgeStyles = __webpack_require__(393);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -43362,7 +43420,7 @@
 	exports.TransactionProgressBadge = TransactionProgressBadge;
 
 /***/ }),
-/* 404 */
+/* 393 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -43439,6 +43497,488 @@
 	});
 
 	exports.styles = styles;
+
+/***/ }),
+/* 394 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(process, global) {/**
+	 * [js-sha3]{@link https://github.com/emn178/js-sha3}
+	 *
+	 * @version 0.5.7
+	 * @author Chen, Yi-Cyuan [emn178@gmail.com]
+	 * @copyright Chen, Yi-Cyuan 2015-2016
+	 * @license MIT
+	 */
+	/*jslint bitwise: true */
+	(function () {
+	  'use strict';
+
+	  var root = typeof window === 'object' ? window : {};
+	  var NODE_JS = !root.JS_SHA3_NO_NODE_JS && typeof process === 'object' && process.versions && process.versions.node;
+	  if (NODE_JS) {
+	    root = global;
+	  }
+	  var COMMON_JS = !root.JS_SHA3_NO_COMMON_JS && typeof module === 'object' && module.exports;
+	  var HEX_CHARS = '0123456789abcdef'.split('');
+	  var SHAKE_PADDING = [31, 7936, 2031616, 520093696];
+	  var KECCAK_PADDING = [1, 256, 65536, 16777216];
+	  var PADDING = [6, 1536, 393216, 100663296];
+	  var SHIFT = [0, 8, 16, 24];
+	  var RC = [1, 0, 32898, 0, 32906, 2147483648, 2147516416, 2147483648, 32907, 0, 2147483649,
+	            0, 2147516545, 2147483648, 32777, 2147483648, 138, 0, 136, 0, 2147516425, 0,
+	            2147483658, 0, 2147516555, 0, 139, 2147483648, 32905, 2147483648, 32771,
+	            2147483648, 32770, 2147483648, 128, 2147483648, 32778, 0, 2147483658, 2147483648,
+	            2147516545, 2147483648, 32896, 2147483648, 2147483649, 0, 2147516424, 2147483648];
+	  var BITS = [224, 256, 384, 512];
+	  var SHAKE_BITS = [128, 256];
+	  var OUTPUT_TYPES = ['hex', 'buffer', 'arrayBuffer', 'array'];
+
+	  var createOutputMethod = function (bits, padding, outputType) {
+	    return function (message) {
+	      return new Keccak(bits, padding, bits).update(message)[outputType]();
+	    };
+	  };
+
+	  var createShakeOutputMethod = function (bits, padding, outputType) {
+	    return function (message, outputBits) {
+	      return new Keccak(bits, padding, outputBits).update(message)[outputType]();
+	    };
+	  };
+
+	  var createMethod = function (bits, padding) {
+	    var method = createOutputMethod(bits, padding, 'hex');
+	    method.create = function () {
+	      return new Keccak(bits, padding, bits);
+	    };
+	    method.update = function (message) {
+	      return method.create().update(message);
+	    };
+	    for (var i = 0; i < OUTPUT_TYPES.length; ++i) {
+	      var type = OUTPUT_TYPES[i];
+	      method[type] = createOutputMethod(bits, padding, type);
+	    }
+	    return method;
+	  };
+
+	  var createShakeMethod = function (bits, padding) {
+	    var method = createShakeOutputMethod(bits, padding, 'hex');
+	    method.create = function (outputBits) {
+	      return new Keccak(bits, padding, outputBits);
+	    };
+	    method.update = function (message, outputBits) {
+	      return method.create(outputBits).update(message);
+	    };
+	    for (var i = 0; i < OUTPUT_TYPES.length; ++i) {
+	      var type = OUTPUT_TYPES[i];
+	      method[type] = createShakeOutputMethod(bits, padding, type);
+	    }
+	    return method;
+	  };
+
+	  var algorithms = [
+	    {name: 'keccak', padding: KECCAK_PADDING, bits: BITS, createMethod: createMethod},
+	    {name: 'sha3', padding: PADDING, bits: BITS, createMethod: createMethod},
+	    {name: 'shake', padding: SHAKE_PADDING, bits: SHAKE_BITS, createMethod: createShakeMethod}
+	  ];
+
+	  var methods = {}, methodNames = [];
+
+	  for (var i = 0; i < algorithms.length; ++i) {
+	    var algorithm = algorithms[i];
+	    var bits  = algorithm.bits;
+	    for (var j = 0; j < bits.length; ++j) {
+	      var methodName = algorithm.name +'_' + bits[j];
+	      methodNames.push(methodName);
+	      methods[methodName] = algorithm.createMethod(bits[j], algorithm.padding);
+	    }
+	  }
+
+	  function Keccak(bits, padding, outputBits) {
+	    this.blocks = [];
+	    this.s = [];
+	    this.padding = padding;
+	    this.outputBits = outputBits;
+	    this.reset = true;
+	    this.block = 0;
+	    this.start = 0;
+	    this.blockCount = (1600 - (bits << 1)) >> 5;
+	    this.byteCount = this.blockCount << 2;
+	    this.outputBlocks = outputBits >> 5;
+	    this.extraBytes = (outputBits & 31) >> 3;
+
+	    for (var i = 0; i < 50; ++i) {
+	      this.s[i] = 0;
+	    }
+	  }
+
+	  Keccak.prototype.update = function (message) {
+	    var notString = typeof message !== 'string';
+	    if (notString && message.constructor === ArrayBuffer) {
+	      message = new Uint8Array(message);
+	    }
+	    var length = message.length, blocks = this.blocks, byteCount = this.byteCount,
+	      blockCount = this.blockCount, index = 0, s = this.s, i, code;
+
+	    while (index < length) {
+	      if (this.reset) {
+	        this.reset = false;
+	        blocks[0] = this.block;
+	        for (i = 1; i < blockCount + 1; ++i) {
+	          blocks[i] = 0;
+	        }
+	      }
+	      if (notString) {
+	        for (i = this.start; index < length && i < byteCount; ++index) {
+	          blocks[i >> 2] |= message[index] << SHIFT[i++ & 3];
+	        }
+	      } else {
+	        for (i = this.start; index < length && i < byteCount; ++index) {
+	          code = message.charCodeAt(index);
+	          if (code < 0x80) {
+	            blocks[i >> 2] |= code << SHIFT[i++ & 3];
+	          } else if (code < 0x800) {
+	            blocks[i >> 2] |= (0xc0 | (code >> 6)) << SHIFT[i++ & 3];
+	            blocks[i >> 2] |= (0x80 | (code & 0x3f)) << SHIFT[i++ & 3];
+	          } else if (code < 0xd800 || code >= 0xe000) {
+	            blocks[i >> 2] |= (0xe0 | (code >> 12)) << SHIFT[i++ & 3];
+	            blocks[i >> 2] |= (0x80 | ((code >> 6) & 0x3f)) << SHIFT[i++ & 3];
+	            blocks[i >> 2] |= (0x80 | (code & 0x3f)) << SHIFT[i++ & 3];
+	          } else {
+	            code = 0x10000 + (((code & 0x3ff) << 10) | (message.charCodeAt(++index) & 0x3ff));
+	            blocks[i >> 2] |= (0xf0 | (code >> 18)) << SHIFT[i++ & 3];
+	            blocks[i >> 2] |= (0x80 | ((code >> 12) & 0x3f)) << SHIFT[i++ & 3];
+	            blocks[i >> 2] |= (0x80 | ((code >> 6) & 0x3f)) << SHIFT[i++ & 3];
+	            blocks[i >> 2] |= (0x80 | (code & 0x3f)) << SHIFT[i++ & 3];
+	          }
+	        }
+	      }
+	      this.lastByteIndex = i;
+	      if (i >= byteCount) {
+	        this.start = i - byteCount;
+	        this.block = blocks[blockCount];
+	        for (i = 0; i < blockCount; ++i) {
+	          s[i] ^= blocks[i];
+	        }
+	        f(s);
+	        this.reset = true;
+	      } else {
+	        this.start = i;
+	      }
+	    }
+	    return this;
+	  };
+
+	  Keccak.prototype.finalize = function () {
+	    var blocks = this.blocks, i = this.lastByteIndex, blockCount = this.blockCount, s = this.s;
+	    blocks[i >> 2] |= this.padding[i & 3];
+	    if (this.lastByteIndex === this.byteCount) {
+	      blocks[0] = blocks[blockCount];
+	      for (i = 1; i < blockCount + 1; ++i) {
+	        blocks[i] = 0;
+	      }
+	    }
+	    blocks[blockCount - 1] |= 0x80000000;
+	    for (i = 0; i < blockCount; ++i) {
+	      s[i] ^= blocks[i];
+	    }
+	    f(s);
+	  };
+
+	  Keccak.prototype.toString = Keccak.prototype.hex = function () {
+	    this.finalize();
+
+	    var blockCount = this.blockCount, s = this.s, outputBlocks = this.outputBlocks,
+	        extraBytes = this.extraBytes, i = 0, j = 0;
+	    var hex = '', block;
+	    while (j < outputBlocks) {
+	      for (i = 0; i < blockCount && j < outputBlocks; ++i, ++j) {
+	        block = s[i];
+	        hex += HEX_CHARS[(block >> 4) & 0x0F] + HEX_CHARS[block & 0x0F] +
+	               HEX_CHARS[(block >> 12) & 0x0F] + HEX_CHARS[(block >> 8) & 0x0F] +
+	               HEX_CHARS[(block >> 20) & 0x0F] + HEX_CHARS[(block >> 16) & 0x0F] +
+	               HEX_CHARS[(block >> 28) & 0x0F] + HEX_CHARS[(block >> 24) & 0x0F];
+	      }
+	      if (j % blockCount === 0) {
+	        f(s);
+	        i = 0;
+	      }
+	    }
+	    if (extraBytes) {
+	      block = s[i];
+	      if (extraBytes > 0) {
+	        hex += HEX_CHARS[(block >> 4) & 0x0F] + HEX_CHARS[block & 0x0F];
+	      }
+	      if (extraBytes > 1) {
+	        hex += HEX_CHARS[(block >> 12) & 0x0F] + HEX_CHARS[(block >> 8) & 0x0F];
+	      }
+	      if (extraBytes > 2) {
+	        hex += HEX_CHARS[(block >> 20) & 0x0F] + HEX_CHARS[(block >> 16) & 0x0F];
+	      }
+	    }
+	    return hex;
+	  };
+
+	  Keccak.prototype.arrayBuffer = function () {
+	    this.finalize();
+
+	    var blockCount = this.blockCount, s = this.s, outputBlocks = this.outputBlocks,
+	        extraBytes = this.extraBytes, i = 0, j = 0;
+	    var bytes = this.outputBits >> 3;
+	    var buffer;
+	    if (extraBytes) {
+	      buffer = new ArrayBuffer((outputBlocks + 1) << 2);
+	    } else {
+	      buffer = new ArrayBuffer(bytes);
+	    }
+	    var array = new Uint32Array(buffer);
+	    while (j < outputBlocks) {
+	      for (i = 0; i < blockCount && j < outputBlocks; ++i, ++j) {
+	        array[j] = s[i];
+	      }
+	      if (j % blockCount === 0) {
+	        f(s);
+	      }
+	    }
+	    if (extraBytes) {
+	      array[i] = s[i];
+	      buffer = buffer.slice(0, bytes);
+	    }
+	    return buffer;
+	  };
+
+	  Keccak.prototype.buffer = Keccak.prototype.arrayBuffer;
+
+	  Keccak.prototype.digest = Keccak.prototype.array = function () {
+	    this.finalize();
+
+	    var blockCount = this.blockCount, s = this.s, outputBlocks = this.outputBlocks,
+	        extraBytes = this.extraBytes, i = 0, j = 0;
+	    var array = [], offset, block;
+	    while (j < outputBlocks) {
+	      for (i = 0; i < blockCount && j < outputBlocks; ++i, ++j) {
+	        offset = j << 2;
+	        block = s[i];
+	        array[offset] = block & 0xFF;
+	        array[offset + 1] = (block >> 8) & 0xFF;
+	        array[offset + 2] = (block >> 16) & 0xFF;
+	        array[offset + 3] = (block >> 24) & 0xFF;
+	      }
+	      if (j % blockCount === 0) {
+	        f(s);
+	      }
+	    }
+	    if (extraBytes) {
+	      offset = j << 2;
+	      block = s[i];
+	      if (extraBytes > 0) {
+	        array[offset] = block & 0xFF;
+	      }
+	      if (extraBytes > 1) {
+	        array[offset + 1] = (block >> 8) & 0xFF;
+	      }
+	      if (extraBytes > 2) {
+	        array[offset + 2] = (block >> 16) & 0xFF;
+	      }
+	    }
+	    return array;
+	  };
+
+	  var f = function (s) {
+	    var h, l, n, c0, c1, c2, c3, c4, c5, c6, c7, c8, c9,
+	        b0, b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11, b12, b13, b14, b15, b16, b17,
+	        b18, b19, b20, b21, b22, b23, b24, b25, b26, b27, b28, b29, b30, b31, b32, b33,
+	        b34, b35, b36, b37, b38, b39, b40, b41, b42, b43, b44, b45, b46, b47, b48, b49;
+	    for (n = 0; n < 48; n += 2) {
+	      c0 = s[0] ^ s[10] ^ s[20] ^ s[30] ^ s[40];
+	      c1 = s[1] ^ s[11] ^ s[21] ^ s[31] ^ s[41];
+	      c2 = s[2] ^ s[12] ^ s[22] ^ s[32] ^ s[42];
+	      c3 = s[3] ^ s[13] ^ s[23] ^ s[33] ^ s[43];
+	      c4 = s[4] ^ s[14] ^ s[24] ^ s[34] ^ s[44];
+	      c5 = s[5] ^ s[15] ^ s[25] ^ s[35] ^ s[45];
+	      c6 = s[6] ^ s[16] ^ s[26] ^ s[36] ^ s[46];
+	      c7 = s[7] ^ s[17] ^ s[27] ^ s[37] ^ s[47];
+	      c8 = s[8] ^ s[18] ^ s[28] ^ s[38] ^ s[48];
+	      c9 = s[9] ^ s[19] ^ s[29] ^ s[39] ^ s[49];
+
+	      h = c8 ^ ((c2 << 1) | (c3 >>> 31));
+	      l = c9 ^ ((c3 << 1) | (c2 >>> 31));
+	      s[0] ^= h;
+	      s[1] ^= l;
+	      s[10] ^= h;
+	      s[11] ^= l;
+	      s[20] ^= h;
+	      s[21] ^= l;
+	      s[30] ^= h;
+	      s[31] ^= l;
+	      s[40] ^= h;
+	      s[41] ^= l;
+	      h = c0 ^ ((c4 << 1) | (c5 >>> 31));
+	      l = c1 ^ ((c5 << 1) | (c4 >>> 31));
+	      s[2] ^= h;
+	      s[3] ^= l;
+	      s[12] ^= h;
+	      s[13] ^= l;
+	      s[22] ^= h;
+	      s[23] ^= l;
+	      s[32] ^= h;
+	      s[33] ^= l;
+	      s[42] ^= h;
+	      s[43] ^= l;
+	      h = c2 ^ ((c6 << 1) | (c7 >>> 31));
+	      l = c3 ^ ((c7 << 1) | (c6 >>> 31));
+	      s[4] ^= h;
+	      s[5] ^= l;
+	      s[14] ^= h;
+	      s[15] ^= l;
+	      s[24] ^= h;
+	      s[25] ^= l;
+	      s[34] ^= h;
+	      s[35] ^= l;
+	      s[44] ^= h;
+	      s[45] ^= l;
+	      h = c4 ^ ((c8 << 1) | (c9 >>> 31));
+	      l = c5 ^ ((c9 << 1) | (c8 >>> 31));
+	      s[6] ^= h;
+	      s[7] ^= l;
+	      s[16] ^= h;
+	      s[17] ^= l;
+	      s[26] ^= h;
+	      s[27] ^= l;
+	      s[36] ^= h;
+	      s[37] ^= l;
+	      s[46] ^= h;
+	      s[47] ^= l;
+	      h = c6 ^ ((c0 << 1) | (c1 >>> 31));
+	      l = c7 ^ ((c1 << 1) | (c0 >>> 31));
+	      s[8] ^= h;
+	      s[9] ^= l;
+	      s[18] ^= h;
+	      s[19] ^= l;
+	      s[28] ^= h;
+	      s[29] ^= l;
+	      s[38] ^= h;
+	      s[39] ^= l;
+	      s[48] ^= h;
+	      s[49] ^= l;
+
+	      b0 = s[0];
+	      b1 = s[1];
+	      b32 = (s[11] << 4) | (s[10] >>> 28);
+	      b33 = (s[10] << 4) | (s[11] >>> 28);
+	      b14 = (s[20] << 3) | (s[21] >>> 29);
+	      b15 = (s[21] << 3) | (s[20] >>> 29);
+	      b46 = (s[31] << 9) | (s[30] >>> 23);
+	      b47 = (s[30] << 9) | (s[31] >>> 23);
+	      b28 = (s[40] << 18) | (s[41] >>> 14);
+	      b29 = (s[41] << 18) | (s[40] >>> 14);
+	      b20 = (s[2] << 1) | (s[3] >>> 31);
+	      b21 = (s[3] << 1) | (s[2] >>> 31);
+	      b2 = (s[13] << 12) | (s[12] >>> 20);
+	      b3 = (s[12] << 12) | (s[13] >>> 20);
+	      b34 = (s[22] << 10) | (s[23] >>> 22);
+	      b35 = (s[23] << 10) | (s[22] >>> 22);
+	      b16 = (s[33] << 13) | (s[32] >>> 19);
+	      b17 = (s[32] << 13) | (s[33] >>> 19);
+	      b48 = (s[42] << 2) | (s[43] >>> 30);
+	      b49 = (s[43] << 2) | (s[42] >>> 30);
+	      b40 = (s[5] << 30) | (s[4] >>> 2);
+	      b41 = (s[4] << 30) | (s[5] >>> 2);
+	      b22 = (s[14] << 6) | (s[15] >>> 26);
+	      b23 = (s[15] << 6) | (s[14] >>> 26);
+	      b4 = (s[25] << 11) | (s[24] >>> 21);
+	      b5 = (s[24] << 11) | (s[25] >>> 21);
+	      b36 = (s[34] << 15) | (s[35] >>> 17);
+	      b37 = (s[35] << 15) | (s[34] >>> 17);
+	      b18 = (s[45] << 29) | (s[44] >>> 3);
+	      b19 = (s[44] << 29) | (s[45] >>> 3);
+	      b10 = (s[6] << 28) | (s[7] >>> 4);
+	      b11 = (s[7] << 28) | (s[6] >>> 4);
+	      b42 = (s[17] << 23) | (s[16] >>> 9);
+	      b43 = (s[16] << 23) | (s[17] >>> 9);
+	      b24 = (s[26] << 25) | (s[27] >>> 7);
+	      b25 = (s[27] << 25) | (s[26] >>> 7);
+	      b6 = (s[36] << 21) | (s[37] >>> 11);
+	      b7 = (s[37] << 21) | (s[36] >>> 11);
+	      b38 = (s[47] << 24) | (s[46] >>> 8);
+	      b39 = (s[46] << 24) | (s[47] >>> 8);
+	      b30 = (s[8] << 27) | (s[9] >>> 5);
+	      b31 = (s[9] << 27) | (s[8] >>> 5);
+	      b12 = (s[18] << 20) | (s[19] >>> 12);
+	      b13 = (s[19] << 20) | (s[18] >>> 12);
+	      b44 = (s[29] << 7) | (s[28] >>> 25);
+	      b45 = (s[28] << 7) | (s[29] >>> 25);
+	      b26 = (s[38] << 8) | (s[39] >>> 24);
+	      b27 = (s[39] << 8) | (s[38] >>> 24);
+	      b8 = (s[48] << 14) | (s[49] >>> 18);
+	      b9 = (s[49] << 14) | (s[48] >>> 18);
+
+	      s[0] = b0 ^ (~b2 & b4);
+	      s[1] = b1 ^ (~b3 & b5);
+	      s[10] = b10 ^ (~b12 & b14);
+	      s[11] = b11 ^ (~b13 & b15);
+	      s[20] = b20 ^ (~b22 & b24);
+	      s[21] = b21 ^ (~b23 & b25);
+	      s[30] = b30 ^ (~b32 & b34);
+	      s[31] = b31 ^ (~b33 & b35);
+	      s[40] = b40 ^ (~b42 & b44);
+	      s[41] = b41 ^ (~b43 & b45);
+	      s[2] = b2 ^ (~b4 & b6);
+	      s[3] = b3 ^ (~b5 & b7);
+	      s[12] = b12 ^ (~b14 & b16);
+	      s[13] = b13 ^ (~b15 & b17);
+	      s[22] = b22 ^ (~b24 & b26);
+	      s[23] = b23 ^ (~b25 & b27);
+	      s[32] = b32 ^ (~b34 & b36);
+	      s[33] = b33 ^ (~b35 & b37);
+	      s[42] = b42 ^ (~b44 & b46);
+	      s[43] = b43 ^ (~b45 & b47);
+	      s[4] = b4 ^ (~b6 & b8);
+	      s[5] = b5 ^ (~b7 & b9);
+	      s[14] = b14 ^ (~b16 & b18);
+	      s[15] = b15 ^ (~b17 & b19);
+	      s[24] = b24 ^ (~b26 & b28);
+	      s[25] = b25 ^ (~b27 & b29);
+	      s[34] = b34 ^ (~b36 & b38);
+	      s[35] = b35 ^ (~b37 & b39);
+	      s[44] = b44 ^ (~b46 & b48);
+	      s[45] = b45 ^ (~b47 & b49);
+	      s[6] = b6 ^ (~b8 & b0);
+	      s[7] = b7 ^ (~b9 & b1);
+	      s[16] = b16 ^ (~b18 & b10);
+	      s[17] = b17 ^ (~b19 & b11);
+	      s[26] = b26 ^ (~b28 & b20);
+	      s[27] = b27 ^ (~b29 & b21);
+	      s[36] = b36 ^ (~b38 & b30);
+	      s[37] = b37 ^ (~b39 & b31);
+	      s[46] = b46 ^ (~b48 & b40);
+	      s[47] = b47 ^ (~b49 & b41);
+	      s[8] = b8 ^ (~b0 & b2);
+	      s[9] = b9 ^ (~b1 & b3);
+	      s[18] = b18 ^ (~b10 & b12);
+	      s[19] = b19 ^ (~b11 & b13);
+	      s[28] = b28 ^ (~b20 & b22);
+	      s[29] = b29 ^ (~b21 & b23);
+	      s[38] = b38 ^ (~b30 & b32);
+	      s[39] = b39 ^ (~b31 & b33);
+	      s[48] = b48 ^ (~b40 & b42);
+	      s[49] = b49 ^ (~b41 & b43);
+
+	      s[0] ^= RC[n];
+	      s[1] ^= RC[n + 1];
+	    }
+	  };
+
+	  if (COMMON_JS) {
+	    module.exports = methods;
+	  } else {
+	    for (var i = 0; i < methodNames.length; ++i) {
+	      root[methodNames[i]] = methods[methodNames[i]];
+	    }
+	  }
+	})();
+
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3), (function() { return this; }())))
 
 /***/ })
 /******/ ]);

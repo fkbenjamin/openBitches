@@ -1,10 +1,11 @@
 import React from 'react';
-//import styles from "../style.css";
-import styles from "../dist/dapp-styles.css";
+import styles from "../style.css";
 import {Bond} from 'oo7';
 import {RRaisedButton, Rspan, TextBond, HashBond} from 'oo7-react';
 import {formatBlockNumber, formatBalance, isNullData, makeContract} from 'oo7-parity';
 import {TransactionProgressBadge} from 'parity-reactive-ui';
+
+import {sha3_256} from 'js-sha3';
 
 const TestimonyABI = [
   {
@@ -106,12 +107,25 @@ export class App extends React.Component {
     this.state = {
       tx: null
     };
+    this.file = false;
   }
 
   render() {
 
     return (
       <div>
+        <div
+          id="drop_zone"
+          onDragOver={this.handleDragOver.bind(this)}
+          onDrop={this.handleFileSelect.bind(this)}>
+          {this.file ?
+            <span>{this.file.name}, {this.file.type} - {this.file.size} Bytes</span> :
+            "Drop file here"
+          }
+        </div>
+        <RRaisedButton label="Log what's stored in this.file" onClick={() => console.log(this.file)} />
+
+
         <HashBond bond={this.hash} floatingLabelText='Hash'/>
 
         <RRaisedButton label="Register as new testimonial" onClick={() => this.setState({
@@ -141,5 +155,50 @@ export class App extends React.Component {
         </Rspan>
       </div>
     );
+  }
+
+  handleFileSelect(evt) {
+    var that = this;
+    evt.stopPropagation();
+    evt.preventDefault();
+
+    var files = evt.dataTransfer.files; // FileList object.
+
+    // files is a FileList of File objects. List some properties.
+    var output;
+    for (var i = 0, f; f = files[i]; i++) {
+      output = {
+        name: f.name,
+        type: f.type || "n/a",
+        size: f.size,
+      };
+      this.file = output;
+
+      var reader = new FileReader();
+
+      reader.onloadend = function(evt) {
+        if (evt.target.readyState == FileReader.DONE) { // DONE == 2
+          var hash = sha3_256(evt.target.result);
+          that.file.hash = "0x" + hash;
+          console.log(that.file.name + " hash: " + that.file.hash);
+
+          // TODO: Substitute the following workaround with something react-like
+          // document.getElementById('hash_field').value = "0x" + that.file.hash.toString();
+          // that.hash = new Bond("0x" + that.file.hash);
+          document.getElementById('drop_zone').innerHTML = "<span style={color:#FFF;font-size:100%}>"+that.file.name+", "+that.file.type+" - "+that.file.size+" Bytes: "+that.file.hash+"</span>";
+         }
+      };
+
+      reader.readAsBinaryString(f);
+
+      break;
+    }
+    console.log(output);
+  }
+
+  handleDragOver(evt) {
+      evt.stopPropagation();
+      evt.preventDefault();
+      evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
   }
 }
