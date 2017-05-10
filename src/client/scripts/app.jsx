@@ -130,7 +130,7 @@ export class App extends React.Component {
                 this.state.tx
               } />} actAsExpander={false} showExpandableButton={false}/>
               <CardActions>
-                <div id="drop_zone" onDragOver={this.handleDragOver.bind(this)} onDrop={this.handleFileSelect.bind(this)}>
+                <div id="drop_zone_reg" onDragOver={this.handleDragOver.bind(this)} onDrop={this.handleFileSelect.bind(this)}>
                   {this.file
                     ? <span>{this.file.name}, {this.file.type}
                         - {this.file.size}
@@ -179,7 +179,7 @@ export class App extends React.Component {
             <Card>
               <CardHeader title="Enter your Testimony" actAsExpander={false} showExpandableButton={false}/>
               <CardActions>
-                <div id="drop_zone" onDragOver={this.handleDragOver.bind(this)} onDrop={this.handleFileSelect.bind(this)}>
+                <div id="drop_zone_val" onDragOver={this.handleDragOver.bind(this)} onDrop={this.handleFileSelect.bind(this)}>
                   {this.file
                     ? <span>{this.file.name}, {this.file.type}
                         - {this.file.size}
@@ -230,7 +230,9 @@ export class App extends React.Component {
           // TODO: Substitute the following workaround with something react-like
           // document.getElementById('hash_field').value = "0x" + that.file.hash.toString();
           // that.hash = new Bond("0x" + that.file.hash);
-          document.getElementById('drop_zone').innerHTML = "<span style={color:#FFF;font-size:100%}>" + that.file.name + ", " + that.file.type + " - " + that.file.size + " Bytes: " + that.file.hash + "</span>";
+          document.getElementById('drop_zone_reg').innerHTML = "<span style={color:#FFF;font-size:100%}>" + that.file.name + ", " + that.file.type + " - " + that.file.size + " Bytes: " + that.file.hash + "</span>";
+          document.getElementById('drop_zone_val').innerHTML = "<span style={color:#FFF;font-size:100%}>" + that.file.name + ", " + that.file.type + " - " + that.file.size + " Bytes: " + that.file.hash + "</span>";
+
         }
       };
 
