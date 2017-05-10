@@ -4,6 +4,10 @@ import {Bond} from 'oo7';
 import {RRaisedButton, Rspan, TextBond, HashBond} from 'oo7-react';
 import {formatBlockNumber, formatBalance, isNullData, makeContract} from 'oo7-parity';
 import {TransactionProgressBadge} from 'parity-reactive-ui';
+import {List, ListItem} from 'material-ui/List';
+import ActionInfo from 'material-ui/svg-icons/action/info';
+import RaisedButton from 'material-ui/RaisedButton';
+import Subheader from 'material-ui/Subheader';
 
 import {sha3_256} from 'js-sha3';
 
@@ -138,20 +142,24 @@ export class App extends React.Component {
           <TransactionProgressBadge value={this.state.tx}/>
         </div>
         <Rspan>
-          Hello!
+        <div>
+          <List>
+          <Subheader>Recent Events</Subheader>
           <Rspan>
             {this.tests.map(v => v.map(function(ele) {
               return (
-                <div>
-                  <RRaisedButton label="Update" onClick={() => this.setState({
-                    tx: this.contract.update(ele.testimonyID, this.hash)
-                  })}/>
-                  <Rspan>Absender:{ele.from}, TID {ele.testimonyID.toString()}, Hash: {ele.hash}
-                  </Rspan>
-                </div>
+
+                    <ListItem rightIconButton={<RaisedButton label="Update" onClick={() => this.setState({
+                      tx: this.contract.update(ele.testimonyID, this.hash)
+                    })}/>} primaryText={'From ' + ele.from}
+                    secondaryText={'TID: ' + ele.testimonyID.toString() + ', Hash: ' + ele.hash}>
+                    </ListItem>
+
               )
             }, this), this)}
           </Rspan>
+          </List>
+        </div>
         </Rspan>
       </div>
     );
