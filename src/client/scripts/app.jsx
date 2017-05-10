@@ -192,7 +192,7 @@ export class App extends React.Component {
                 })} fullWidth={true}/>
               </CardActions>
             </Card>
-            <Chip backgroundColor={blue300} style={styles.chip} fullWidth={true}>
+            <Chip backgroundColor={blue300} style={styles.chip}>
               Text Chip
             </Chip>
           </Tab>

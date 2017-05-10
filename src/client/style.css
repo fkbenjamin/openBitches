@@ -15,7 +15,7 @@ span._hash {
 	font-size: large;
 }
 
-div#drop_zone {
+div#drop_zone_reg, div#drop_zone_val {
   border: 2px dashed #bbb;
   -moz-border-radius: 5px;
   -webkit-border-radius: 5px;
