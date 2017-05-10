@@ -10,12 +10,11 @@ import RaisedButton from 'material-ui/RaisedButton';
 import FlatButton from 'material-ui/FlatButton';
 import Subheader from 'material-ui/Subheader';
 import Chip from 'material-ui/Chip';
-//import {blue300, indigo900} from 'material-ui/styles/colors';
+import {blue300, indigo900} from 'material-ui/styles/colors';
 import {Card, CardActions, CardHeader, CardText} from 'material-ui/Card';
 import {Tabs, Tab} from 'material-ui/Tabs';
 
 import {sha3_256} from 'js-sha3';
-
 
 const TestimonyABI = [
   {
@@ -120,83 +119,83 @@ export class App extends React.Component {
     this.file = false;
   }
 
-
-
   render() {
 
     return (
       <div>
-      <Tabs>
-        <Tab label="Register/Update" >
-        <Card>
-          <CardHeader title="Enter your Testimony Hash" subtitle={<TransactionProgressBadge value={this.state.tx}/>} actAsExpander={false} showExpandableButton={false}/>
-          <CardActions>
-            <div id="drop_zone" onDragOver={this.handleDragOver.bind(this)} onDrop={this.handleFileSelect.bind(this)}>
-              {this.file
-                ? <span>{this.file.name}, {this.file.type}
-                    - {this.file.size}
-                    Bytes</span>
-                : "Drop file here"
+        <Tabs>
+          <Tab label="Register/Update">
+            <Card>
+              <CardHeader title="Enter your Testimony Hash" subtitle={< TransactionProgressBadge value = {
+                this.state.tx
+              } />} actAsExpander={false} showExpandableButton={false}/>
+              <CardActions>
+                <div id="drop_zone" onDragOver={this.handleDragOver.bind(this)} onDrop={this.handleFileSelect.bind(this)}>
+                  {this.file
+                    ? <span>{this.file.name}, {this.file.type}
+                        - {this.file.size}
+                        Bytes</span>
+                    : "Drop file here"
 }
-            </div>
-            <RaisedButton primary={true} label="Register new Testimony" onClick={() => this.setState({
-              tx: this.contract.create(this.file.hash)
-            })} fullWidth={true}/>
-          </CardActions>
-        </Card>
-        <Rspan>
-          {this.contract.isValid(this.hash).map(v => v.toString())}
-        </Rspan>
-        <div style={{
-          marginTop: '1em'
-        }}>
-        </div>
-        <Rspan>
-          <div>
-            <List>
-              <Subheader>Recent Events</Subheader>
-              <Rspan>
-                {this.tests.map(v => v.map(function(ele) {
-                  return (
+                </div>
+                <RaisedButton primary={true} label="Register new Testimony" onClick={() => this.setState({
+                  tx: this.contract.create(this.file.hash)
+                })} fullWidth={true}/>
+              </CardActions>
+            </Card>
+            <Rspan>
+              {this.contract.isValid(this.hash).map(v => v.toString())}
+            </Rspan>
+            <div style={{
+              marginTop: '1em'
+            }}></div>
+            <Rspan>
+              <div>
+                <List>
+                  <Subheader>Recent Events</Subheader>
+                  <Rspan>
+                    {this.tests.map(v => v.map(function(ele) {
+                      return (
 
-                    <ListItem leftAvatar={
-                      <AccountIcon
-            	         style={{width: '1.2em', verticalAlign: 'bottom', marginLeft: '1ex'}}
-            	         key={ele.from}
-            	         address={ele.from}
-                         />
-                       } rightIconButton={< RaisedButton label = "Update" onClick = {
-                      () => this.setState({
-                        tx: this.contract.update(ele.testimonyID, this.hash)
-                      })
-                    } />} primaryText={'From ' + ele.from} secondaryText={'TID: ' + ele.testimonyID.toString() + ', Hash: ' + ele.hash}></ListItem>
+                        <ListItem leftAvatar={< AccountIcon style = {{width: '1.2em', verticalAlign: 'bottom', marginLeft: '1ex'}}key = {
+                          ele.from
+                        }
+                        address = {
+                          ele.from
+                        } />} rightIconButton={< RaisedButton label = "Update" onClick = {
+                          () => this.setState({
+                            tx: this.contract.update(ele.testimonyID, this.file.hash)
+                          })
+                        } />} primaryText={'From ' + ele.from} secondaryText={'TID: ' + ele.testimonyID.toString() + ', Hash: ' + ele.hash}></ListItem>
 
-                  )
-                }, this), this)}
-              </Rspan>
-            </List>
-          </div>
-        </Rspan>
-        </Tab>
-        <Tab label="Validate" >
-        <Card>
-          <CardHeader title="Enter your Testimony" actAsExpander={false} showExpandableButton={false}/>
-          <CardActions>
-            <div id="drop_zone" onDragOver={this.handleDragOver.bind(this)} onDrop={this.handleFileSelect.bind(this)}>
-              {this.file
-                ? <span>{this.file.name}, {this.file.type}
-                    - {this.file.size}
-                    Bytes</span>
-                : "Drop file here"
+                      )
+                    }, this), this)}
+                  </Rspan>
+                </List>
+              </div>
+            </Rspan>
+          </Tab>
+          <Tab label="Validate">
+            <Card>
+              <CardHeader title="Enter your Testimony" actAsExpander={false} showExpandableButton={false}/>
+              <CardActions>
+                <div id="drop_zone" onDragOver={this.handleDragOver.bind(this)} onDrop={this.handleFileSelect.bind(this)}>
+                  {this.file
+                    ? <span>{this.file.name}, {this.file.type}
+                        - {this.file.size}
+                        Bytes</span>
+                    : "Drop file here"
 }
-            </div>
-            <RaisedButton primary={true} label="Validate" onClick={() => this.setState({
-              tx: this.contract.create(this.file.hash)
-            })} fullWidth={true}/>
-          </CardActions>
-        </Card>
-        
-        </Tab>
+                </div>
+                <RaisedButton primary={true} label="Validate" onClick={() => this.setState({
+                  tx: this.contract.create(this.file.hash)
+                })} fullWidth={true}/>
+              </CardActions>
+            </Card>
+            <Chip backgroundColor={blue300} style={styles.chip} fullWidth={true}>
+              Text Chip
+            </Chip>
+          </Tab>
         </Tabs>
 
       </div>
