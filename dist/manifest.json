@@ -1,8 +1,8 @@
 {
-	"id": "skeleton",
-	"name": "Skeleton",
-	"description": "A skeleton dapp",
+	"id": "openBadges",
+	"name": "Open Badges App",
+	"description": "A dapp to validate Testimonys",
 	"version": "0.1",
-	"author": "Parity Technologies Ltd",
+	"author": "Lisstjens",
 	"iconUrl": "title.png"
 }
