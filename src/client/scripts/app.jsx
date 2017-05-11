@@ -112,7 +112,7 @@ export class App extends React.Component {
     this.owner = new Bond;
     this.id = new Bond;
     this.hash = new Bond;
-    this.valid = false;
+    this.valid = null;
     this.state = {
       tx: null
     };
@@ -133,8 +133,8 @@ export class App extends React.Component {
                 <div id="drop_zone_reg" onDragOver={this.handleDragOver.bind(this)} onDrop={this.handleFileSelect.bind(this)}>
                   {this.file
                     ? <span>{this.file.name}, {this.file.type}
-                        - {this.file.size}
-                        Bytes</span>
+                        - {this.file.size} Bytes:
+                        {that.file.hash}</span>
                     : "Drop file here"
 }
                 </div>
@@ -187,12 +187,18 @@ export class App extends React.Component {
                     : "Drop file here"
 }
                 </div>
-                <RaisedButton primary={true} label="Validate" onClick={() => this.setState({
-                  tx: this.contract.create(this.file.hash)
-                })} fullWidth={true}/>
+                <RaisedButton primary={true} label="Validate" onClick={() =>
+                  this.contract.isValid(this.file.hash).then(function (res) {
+                    this.valid = res;
+                    document.getElementById('validity_chip').innerHTML = this.valid ?
+                      "Your document is valid." :
+                      "Your document is not valid";
+                  }.bind(this))
+                  } fullWidth={true}/>
+                  <RaisedButton label="valid?" onClick={() => console.log(this.valid)} />
               </CardActions>
             </Card>
-            <Chip backgroundColor={blue300} style={styles.chip}>
+            <Chip backgroundColor={blue300} style={styles.chip} id="validity_chip">
               Text Chip
             </Chip>
           </Tab>
@@ -230,8 +236,8 @@ export class App extends React.Component {
           // TODO: Substitute the following workaround with something react-like
           // document.getElementById('hash_field').value = "0x" + that.file.hash.toString();
           // that.hash = new Bond("0x" + that.file.hash);
-          document.getElementById('drop_zone_reg').innerHTML = "<span style={color:#FFF;font-size:100%}>" + that.file.name + ", " + that.file.type + " - " + that.file.size + " Bytes: " + that.file.hash + "</span>";
-          document.getElementById('drop_zone_val').innerHTML = "<span style={color:#FFF;font-size:100%}>" + that.file.name + ", " + that.file.type + " - " + that.file.size + " Bytes: " + that.file.hash + "</span>";
+          document.getElementById('drop_zone_reg').innerHTML = "<span>" + that.file.name + ", " + that.file.type + " - " + that.file.size + " Bytes: " + that.file.hash + "</span>";
+          document.getElementById('drop_zone_val').innerHTML = "<span>" + that.file.name + ", " + that.file.type + " - " + that.file.size + " Bytes: " + that.file.hash + "</span>";
 
         }
       };
