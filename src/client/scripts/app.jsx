@@ -13,8 +13,27 @@ import Chip from 'material-ui/Chip';
 import {blue300, indigo900} from 'material-ui/styles/colors';
 import {Card, CardActions, CardHeader, CardText} from 'material-ui/Card';
 import {Tabs, Tab} from 'material-ui/Tabs';
+import * as firebase from 'firebase';
 
 import {sha3_256} from 'js-sha3';
+
+var config = {
+    apiKey: "AIzaSyCTzP3QOo9sElx5bFXIu4L2B4r6-N-Oo4w",
+    authDomain: "passchain-a11e5.firebaseapp.com",
+    databaseURL: "https://passchain-a11e5.firebaseio.com",
+    projectId: "passchain-a11e5",
+    storageBucket: "passchain-a11e5.appspot.com",
+    messagingSenderId: "481652628414"
+  };
+  firebase.initializeApp(config);
+
+const db = firebase.database();
+const dbRef = db.ref().child('data');
+dbRef.on('value', snapshot => {
+  this.setState({
+    data: snapshot.val()
+  });
+});
 
 const TestimonyABI = [
   {
@@ -114,15 +133,26 @@ export class App extends React.Component {
     this.hash = new Bond;
     this.valid = null;
     this.state = {
-      tx: null
+      tx: null,
+      speed: 10
     };
     this.file = false;
   }
 
+  componentDidMount() {
+    const rootRef = firebase.database().ref().child('react');
+    const speedRef = rootRef.child('speed');
+    speedRef.on('value', snap => {
+      this.setState({
+        speed: snap.val()
+      });
+    });
+  }
   render() {
 
     return (
       <div>
+      <h1>{this.state.speed}</h1>
         <Tabs>
           <Tab label="Register/Update">
             <Card>
