@@ -16,6 +16,7 @@ import {Tabs, Tab} from 'material-ui/Tabs';
 
 import {sha3_256} from 'js-sha3';
 
+
 const TestimonyABI = [
   {
     "constant": true,
